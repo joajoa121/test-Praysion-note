@@ -153,7 +153,7 @@ function bindBootstrapEvents(){
   initLock();
   initAndroidBackButton();
   initFrameResizeObserver();
-  initGlobalKeyboardScrollGuard();
+  initViewportKeyboardOffsetGuard();
   afterNextPaint(refreshLocalizedUI);
 }
 
@@ -370,172 +370,60 @@ function bindSingleLineInputGuards(){
 }
 
 
-// Samsung Internet keyboard/viewport scroll guard
+// Cross-browser keyboard viewport guard
 // ============================================================
-// Problem: on Android, focusing ANY <textarea>/<input> (typing, tapping the
-// on-screen keyboard, moving the caret) can make the browser scroll the
-// document itself to "keep the focused field visible" — even though #frame
-// has overflow:hidden and every internal panel scrolls on its own.
-// view-new already has its own keyboard-offset handling (RC7F/RC7H) which
-// happens to mask this, but view-detail (and view-cat) have no such
-// correction, so the whole #frame (topbar included) gets shoved upward.
-// This guard neutralizes that native shift for every view, generically,
-// instead of patching each page one at a time.
-function initGlobalKeyboardScrollGuard(){
-  if(window.__kbScrollGuardBound) return;
-  window.__kbScrollGuardBound=true;
+// Real cause (confirmed): since Chrome 108, Android Chrome stopped resizing
+// the *layout* viewport when the on-screen keyboard opens — it now behaves
+// like iOS Safari, where only the *visual* viewport shrinks/shifts down
+// (visualViewport.offsetTop grows) while the layout viewport (what
+// position:fixed is anchored to) stays full height. Our #frame is
+// position:fixed and pinned to the layout viewport, so its top — where
+// the TopBar lives — scrolls out of the area the visual viewport is
+// actually showing. This is standard modern browser behavior, not a
+// Samsung Internet quirk (reproduces in Chrome too).
+//
+// Fix: track window.visualViewport.offsetTop directly and translate
+// #frame down by that amount, so #frame's top edge always matches the
+// top of whatever region is actually visible on screen. This works
+// regardless of whether interactive-widget=resizes-content is honored
+// by the browser, and needs no polling — it's driven entirely by
+// visualViewport's own resize/scroll events.
+function initViewportKeyboardOffsetGuard(){
+  if(window.__vvOffsetGuardBound) return;
+  window.__vvOffsetGuardBound=true;
 
-  let guarding=false;
-  let guardRaf=0;
-
-  function isTextEntryElement(el){
-    if(!el) return false;
-    if(el.isContentEditable) return true;
-    if(el.tagName==='TEXTAREA') return true;
-    if(el.tagName!=='INPUT') return false;
-
-    return [
-      'text',
-      'search',
-      'email',
-      'url',
-      'tel',
-      'password',
-      'number'
-    ].includes((el.type||'text').toLowerCase());
-  }
-
-  function isFixedTopbarPage(frame){
-    return !!(frame &&
-      !frame.classList.contains('page-list') &&
-      !frame.classList.contains('page-archive') &&
-      !frame.classList.contains('page-lock'));
-  }
-
-  function restoreAppViewport(){
-    if(!guarding) return;
-
+  function updateViewportOffset(){
     const frame=document.getElementById('frame');
     const topbar=document.getElementById('topbar');
-    const fixedTopbarPage=isFixedTopbarPage(frame);
+    if(!frame) return;
+
     const vv=window.visualViewport;
+    const offsetTop=vv ? Math.max(0, Math.round(vv.offsetTop)) : 0;
+    frame.style.setProperty('--vv-offset', offsetTop+'px');
 
-    // Android Chrome/Samsung Internet may pan the *visual* viewport to keep
-    // the focused field visible without changing window.scrollY. In that
-    // state a fixed #frame at layout-viewport top:0 can sit above the visible
-    // screen. Pin fixed-header pages to the current visual viewport instead.
-    if(frame && fixedTopbarPage && vv){
-      const vvTop=Math.max(0,Math.round(vv.offsetTop||0));
-      const vvLeft=Math.max(0,Math.round(vv.offsetLeft||0));
-      const vvHeight=Math.max(1,Math.round(vv.height||window.innerHeight));
-      const vvWidth=Math.max(1,Math.round(vv.width||window.innerWidth));
+    // Belt-and-suspenders: if something also nudges the document scroll
+    // position itself, cancel that out too.
+    if(window.scrollX!==0 || window.scrollY!==0) window.scrollTo(0,0);
 
-      frame.style.setProperty('top',vvTop+'px','important');
-      frame.style.setProperty('left',vvLeft+'px','important');
-      frame.style.setProperty('right','auto','important');
-      frame.style.setProperty('bottom','auto','important');
-      frame.style.setProperty('width',vvWidth+'px','important');
-      frame.style.setProperty('max-width','none','important');
-      frame.style.setProperty('height',vvHeight+'px','important');
-      frame.style.setProperty('min-height',vvHeight+'px','important');
-      frame.style.setProperty('max-height',vvHeight+'px','important');
-      frame.style.setProperty('transform','none','important');
-    }else if(frame){
-      frame.style.setProperty('top','0px','important');
-      frame.style.setProperty('left','0px','important');
-      frame.style.setProperty('transform','none','important');
-    }
-
-    if(window.scrollX!==0 || window.scrollY!==0){
-      window.scrollTo(0,0);
-    }
-
-    // New/detail/category/backup must keep the TopBar visible while a text
-    // field is active. List/archive keep their intentional collapse behavior.
-    if(fixedTopbarPage && topbar){
+    // Any page whose TopBar does not scroll-collapse (new / detail / edit /
+    // category / backup) must keep its TopBar forced visible. Only
+    // list/archive are allowed to collapse it on scroll.
+    const isFixedTopbarPage = !frame.classList.contains('page-list') && !frame.classList.contains('page-archive');
+    if(isFixedTopbarPage && topbar){
       topbar.classList.add('visible');
       topbar.style.setProperty('display','flex','important');
-      topbar.style.setProperty('transform','none','important');
     }
   }
-
-  function restoreFrameAfterKeyboard(){
-    const frame=document.getElementById('frame');
-    if(!frame) return;
-    frame.style.removeProperty('right');
-    frame.style.removeProperty('bottom');
-    frame.style.removeProperty('width');
-    frame.style.removeProperty('max-width');
-    frame.style.removeProperty('height');
-    frame.style.removeProperty('min-height');
-    frame.style.removeProperty('max-height');
-    frame.style.setProperty('top','0px','important');
-    frame.style.setProperty('left','0px','important');
-    frame.style.setProperty('transform','none','important');
-  }
-
-  function runGuardLoop(){
-    if(!guarding){
-      guardRaf=0;
-      return;
-    }
-
-    restoreAppViewport();
-    guardRaf=requestAnimationFrame(runGuardLoop);
-  }
-
-  function startGuard(){
-    guarding=true;
-    if(!guardRaf) guardRaf=requestAnimationFrame(runGuardLoop);
-  }
-
-  function stopGuardLater(){
-    requestAnimationFrame(()=>{
-      guarding=isTextEntryElement(document.activeElement);
-      if(!guarding){
-        if(guardRaf){
-          cancelAnimationFrame(guardRaf);
-          guardRaf=0;
-        }
-        restoreFrameAfterKeyboard();
-      }
-    });
-  }
-
-  document.addEventListener('focusin',event=>{
-    if(!isTextEntryElement(event.target)) return;
-    startGuard();
-  },true);
-
-  document.addEventListener('focusout',event=>{
-    if(!isTextEntryElement(event.target)) return;
-    stopGuardLater();
-  },true);
-
-  [
-    'keydown',
-    'keyup',
-    'beforeinput',
-    'input',
-    'compositionstart',
-    'compositionupdate',
-    'compositionend',
-    'selectionchange'
-  ].forEach(eventName=>{
-    document.addEventListener(eventName,()=>{
-      if(!isTextEntryElement(document.activeElement)) return;
-      startGuard();
-      restoreAppViewport();
-    },true);
-  });
-
-  window.addEventListener('scroll',restoreAppViewport,{passive:true});
-  window.addEventListener('resize',restoreAppViewport);
 
   if(window.visualViewport){
-    window.visualViewport.addEventListener('resize',restoreAppViewport);
-    window.visualViewport.addEventListener('scroll',restoreAppViewport);
+    window.visualViewport.addEventListener('resize',updateViewportOffset);
+    window.visualViewport.addEventListener('scroll',updateViewportOffset);
   }
+  window.addEventListener('resize',updateViewportOffset);
+  document.addEventListener('focusin',updateViewportOffset,true);
+  document.addEventListener('focusout',()=>setTimeout(updateViewportOffset,60),true);
+
+  updateViewportOffset();
 }
 
 

@@ -1,0 +1,1334 @@
+/* =========================================================
+   CSS-1C: screen-based organization map
+   - Cascade order is preserved for safety.
+   - This pass groups the file with section headers only.
+   - No CSS property values or selectors are changed.
+   ========================================================= */
+
+/* ===== Base / App shell ===== */
+*{box-sizing:border-box;margin:0;padding:0;}
+.hidden{display:none!important;}
+body{font-family:'Pretendard',sans-serif;background:#f0f0f0;display:flex;justify-content:center;padding:20px;word-break:keep-all;overflow-wrap:break-word;}
+#frame{width:100%;max-width:390px;height:700px;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative;}
+#lock{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:24px 32px 20px;}
+.lock-sub{font-size:13px;color:#999;}
+.pin-dots{display:flex;gap:14px;}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:1.5px solid #ccc;background:transparent;transition:background .15s;}
+.pin-dot.on{background:#4a7c59;border-color:#4a7c59;}
+.pin-error{font-size:12px;color:#e74c3c;min-height:16px;}
+#lock-sub{border:0!important;outline:0!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent;}
+
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
+.keypad{display:grid;grid-template-columns:repeat(3,68px);gap:14px;}
+.key{width:68px;height:68px;border-radius:50%;border:0.5px solid #e0e0e0;background:#f7f7f5;font-size:22px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s;}
+.key:active{background:#ebebeb;}
+.key.del{font-size:18px;color:#666;}
+.lock-hint{font-size:11px;color:#bbb;text-align:center;min-height:28px;}
+
+
+/* ===== Common TopBar ===== */
+#topbar{
+  display:none;
+  align-items:center;
+  gap:4px;
+  padding:0 14px !important;
+  position:relative !important;
+  z-index:80 !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border-bottom:none !important;
+}
+#topbar.visible{display:flex;}
+#topbar h1{flex:1;}
+.top-icon-btn{background:none;border:none;cursor:pointer;color:#aaa;font-size:21px;padding:6px;display:flex;align-items:center;}
+.top-icon-btn:active{color:#333;}
+
+
+/* ===== List / tabs / cards ===== */
+/* 탭 — 텍스트만, 테두리/배경 없음 */
+
+
+.tab{flex-shrink:0;padding:10px 13px;font-size:16px;font-weight:500;color:#aaa;cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s;}
+.tab.active{color:#4a7c59;border-bottom-color:#4a7c59;}
+
+.view{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;}
+.view.visible{display:flex;}
+
+#slide-container,
+#archive-slide-container{flex:1;overflow:hidden;position:relative;min-height:0;}
+#slides-wrapper,
+#archive-slides-wrapper{display:flex;height:100%;transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.slide{flex-shrink:0;height:100%;overflow-y:auto;overflow-x:hidden;padding:10px 14px 80px;display:flex;flex-direction:column;gap:8px;}
+
+#fab{width:54px;height:54px;flex-shrink:0;border-radius:50%;background:#4a7c59;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 3px 12px rgba(74,124,89,.35);transition:background .15s,transform .1s;}
+#fab:active{background:#3a6248;transform:scale(.94);}
+
+.prayer-card{padding:13px 14px;border-radius:14px;border:0.5px solid #eee;background:#fff;cursor:pointer;flex-shrink:0;}
+.prayer-card:active{background:#f7f7f5;}
+.prayer-card-top{display:flex;align-items:flex-start;gap:8px;}
+.prayer-card-title{flex:1;font-size:16px;font-weight:500;min-width:0;word-break:keep-all;overflow-wrap:break-word;}
+.cat-badge{font-size:12px;padding:2px 8px;border-radius:20px;white-space:nowrap;background:#f0f0ee;color:#888;border:0.5px solid #e8e8e8;flex-shrink:0;}
+.prayer-card-sub{font-size:14px;color:#bbb;margin-top:5px;}
+.prayer-card-body{font-size:16px;color:#666;margin-top:6px;line-height:1.6;white-space:pre-wrap;word-break:keep-all;overflow-wrap:break-word;}
+.archived-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:#edf5ef;color:#4a7c59;border:0.5px solid #c5dfc9;flex-shrink:0;}
+.list-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#bbb;font-size:14px;padding:60px 20px;text-align:center;}
+.list-count{font-size:12px;color:#bbb;padding:4px 0 2px;flex-shrink:0;}
+
+
+/* ===== Detail / editor common inputs ===== */
+.prayer-title-input,
+#detail-title-input{width:100%;font-size:20px;font-weight:700;border:none;outline:none;background:transparent;color:#1a1a1a;font-family:inherit;word-break:keep-all;overflow-wrap:break-word;resize:none;line-height:1.4;}
+.prayer-body-input{width:100%;font-size:17px;line-height:1.7;border:none;padding:4px 0 12px;outline:none;resize:none;background:transparent;font-family:inherit;min-height:80px;color:#333;word-break:keep-all;overflow-wrap:break-word;}
+.detail-body-input{width:100%;font-size:17px;line-height:1.7;border:none;outline:none;resize:none;background:transparent;font-family:inherit;color:#333;}
+.hdr-btn{padding:6px;font-size:21px;border-radius:8px;border:none;background:transparent;color:#aaa;cursor:pointer;display:flex;align-items:center;flex-shrink:0;}
+.hdr-btn:active{background:#f5f5f5;}
+.hdr-btn.danger:active{color:#e74c3c;}
+
+/* ===== Detail memo area ===== */
+#memo-list{
+  margin-top:20px;
+  padding:16px 16px 0;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+.memo-inner{border-top:0.5px solid #4a7c59;border-bottom:0.5px solid #4a7c59;padding:12px 0;}
+.memo-card+.memo-card .memo-inner{border-top:none;}
+.memo-card.thanks .memo-body{color:#4a7c59;}
+.memo-add-btn{flex:1;min-width:0;padding:0;font-size:15px;font-weight:600;border-radius:12px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;line-height:1;white-space:nowrap;}
+.memo-add-btn.record{background:#f2f0eb;color:#555;}
+.memo-add-btn.thanks{background:#4a7c59;color:#fff;}
+.memo-date{flex:1;font-size:14px;color:#bbb !important;}
+.memo-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.memo-actions{display:flex;gap:4px;}
+.memo-add-actions{display:flex;gap:8px;padding:8px 10px;justify-content:center;}
+.memo-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:15px;padding:2px 4px;display:flex;align-items:center;}
+.memo-btn:active{color:#333;}
+.memo-btn.del:active{color:#e74c3c;}
+.memo-edit-input{width:100%;font-size:15px;line-height:1.7;border:none;outline:none;resize:none;background:transparent;font-family:inherit;word-break:keep-all;overflow-wrap:break-word;}
+.memo-edit-input.thanks{color:#4a7c59;}
+.memo-edit-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.memo-edit-actions{display:flex;gap:8px;align-items:center;}
+.memo-edit-action{background:none;border:none;cursor:pointer;font-size:18px;padding:0;display:flex;align-items:center;}
+.memo-edit-action.cancel{color:#bbb;}
+.memo-edit-action.save{color:#4a7c59;}
+.memo-body{font-size:15px;line-height:1.7;white-space:pre-wrap;word-break:keep-all;overflow-wrap:break-word;}
+#memo-add-area{
+  display:flex;
+  flex-direction:column;
+}
+#memo-add-ta{width:100%;box-sizing:border-box;display:block;font-size:15px;padding:10px 12px 6px;border:none;background:transparent;outline:none;resize:none;font-family:inherit;line-height:1.6;min-height:80px;max-height:160px;color:#1a1a1a;word-break:keep-all;overflow-wrap:break-word;}
+
+
+/* ===== Category management ===== */
+#cat-view{
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
+  flex-direction:column;
+  gap:8px;
+  padding:14px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.cat-manage-name{flex:1;font-size:16px;}
+.cat-manage-count{font-size:13px;color:#bbb;}
+.cat-manage-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:17px;padding:6px;}
+.cat-manage-btn.del:active{color:#e74c3c;}
+#view-cat .cat-add-row button:active{background:#3a6248;}
+.cat-manage-row{display:flex;flex:0 0 auto;align-items:center;min-height:50px;gap:8px;padding:10px 12px;border-radius:14px;border:0.5px solid #eee;background:#fff;touch-action:none;transition:transform .22s cubic-bezier(.2,0,.2,1),background .15s,box-shadow .15s;}
+#cat-rows{display:flex;flex:1 1 auto;min-height:0;flex-direction:column;gap:6px;overflow-x:hidden;overflow-y:auto;}
+.cat-manage-row.dragging{opacity:0.5;background:#f0f7f2;box-shadow:0 4px 16px rgba(74,124,89,.18);}
+.drag-ghost-el{position:fixed;pointer-events:none;z-index:999;background:#fff;border-radius:14px;border:1.5px solid #4a7c59;box-shadow:0 8px 24px rgba(74,124,89,.25);transform:scale(1.04);display:flex;align-items:center;gap:8px;padding:10px 12px;}
+.restore-btn{width:100%;padding:11.5px;font-size:15px;font-weight:600;border-radius:12px;border:1.5px solid #4a7c59;background:#fff;color:#4a7c59;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.restore-btn:active{background:#edf5ef;}
+.drag-handle{color:#ccc;font-size:17px;cursor:grab;padding:4px 8px 4px 0;user-select:none;-webkit-user-select:none;}
+.drag-handle:active{cursor:grabbing;}
+.cat-manage-row.fixed .drag-handle{visibility:hidden;pointer-events:none;}
+.cat-manage-row.is-editing .cat-manage-btn,.cat-manage-row.is-deleting .cat-manage-btn,.cat-manage-row.is-deleting .drag-handle,#cat-rows.has-editing .drag-handle{pointer-events:none;opacity:.35;}
+
+
+
+#memo-add-ta::placeholder{color:#bbb;}
+#view-cat .cat-add-row input::placeholder{color:#bbb;}
+
+
+/* ===== Settings controls ===== */
+/* 토글 스위치 */
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.toggle-switch{position:relative;width:50px;height:28px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;background:#ddd;border-radius:28px;transition:background .25s;cursor:pointer;}
+.toggle-slider:before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle-switch input:checked+.toggle-slider{background:#4a7c59;}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(22px);}
+.toggle-label{display:flex;flex-direction:column;gap:3px;}
+.toggle-label-main{font-size:15px;color:#1a1a1a;}
+.toggle-label-sub{font-size:12px;color:#aaa;}
+
+
+/* ===== Splash / lock / bottom navigation ===== */
+/* 스플래시 */
+#splash{position:absolute;inset:0;background:#fff;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;padding-top:150px;border-radius:20px;}
+
+/* 하단 네비게이션 */
+#bottom-nav{position:absolute;bottom:24px;left:0;right:0;display:none;align-items:center;justify-content:center;gap:12px;padding:0 20px;z-index:10;}
+#bottom-nav.visible{display:flex;}
+.nav-bar{display:flex;align-items:center;background:#f2f0eb;border-radius:50px;padding:0 20px;gap:20px;box-shadow:0 4px 16px rgba(0,0,0,0.10);height:54px;}
+.nav-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 6px;border-radius:12px;color:#888;font-size:22px;transition:color .15s;}
+.nav-btn.active{color:#4a7c59;}
+.nav-btn span{font-size:10px;color:#aaa;}
+.nav-btn.active span{color:#4a7c59;}
+
+
+/* ===== Settings bottom sheet ===== */
+/* 설정 바텀시트 */
+#settings-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:100;border-radius:20px;}
+#settings-overlay.open{display:flex;align-items:flex-end;}
+#settings-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:8px 0 20px;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.settings-handle{width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:10px auto 16px;}
+.settings-title{font-size:13px;font-weight:600;color:#aaa;padding:0 20px 8px;letter-spacing:0.04em;}
+.settings-item{display:flex;align-items:center;gap:14px;padding:14px 20px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+button.settings-item{width:100%;border:0;background:transparent;font:inherit;text-align:left;}
+button.settings-item:focus-visible{outline:none;}
+.settings-item:active{background:#f7f7f5;}
+.settings-item-icon{font-size:20px;width:24px;text-align:center;}
+.settings-item-label{font-size:15px;color:#1a1a1a;flex:1;}
+.settings-item-arrow{font-size:16px;color:#ccc;}
+.lang-check{font-size:16px;color:#4a7c59;visibility:hidden;}
+.settings-item.lang-selected .lang-check{visibility:visible;}
+.settings-divider{height:0.5px;background:#f0f0f0;margin:4px 0;}
+
+/* ===== New prayer page ===== */
+#view-new{background:#fff;}
+#new-form{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:24px;}
+.cat-select-wrap{display:flex;flex-wrap:wrap;gap:8px;}
+.cat-chip,
+#detail-cat-wrap .cat-chip{padding:7px 16px;font-size:13px;border-radius:20px;border:0.5px solid #c5dfc9;background:#edf5ef;color:#4a7c59;cursor:pointer;transition:background .15s,border-color .15s,color .15s;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;line-height:1;vertical-align:middle;}
+.cat-chip.selected,
+#detail-cat-wrap .cat-chip.selected{border-color:#4a7c59;background:#4a7c59;color:#fff;font-weight:500;}
+.new-submit-btn{border:none;background:#4a7c59;color:#fff;}
+.new-submit-btn:active{background:#3a6248;}
+
+
+/* ===== Backup page ===== */
+.backup-view{padding:0 16px 24px;display:flex;flex-direction:column;overflow-y:auto;flex:1;background:#fff;}
+.backup-section-label{font-size:12px;font-weight:600;color:#aaa;letter-spacing:0.04em;margin:18px 0 0;padding-bottom:4px;}
+.backup-card{border:none;border-bottom:0.5px solid #eee;border-radius:0;background:#fff;padding:16px 0;display:flex;flex-direction:column;gap:9px;}
+.backup-card:last-child{border-bottom:none;}
+.backup-card-title{font-size:16px!important;font-weight:500!important;line-height:1.5!important;color:#1a1a1a;font-family:inherit;display:flex;align-items:center;gap:7px;}
+.backup-card-title i{font-size:20px!important;color:#4a7c59;}
+.backup-btn{width:100%;padding:11px 14px;border-radius:999px;border:none;background:#4a7c59;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.backup-btn.sub{background:#f2f0eb;color:#555;}
+.backup-textarea{width:100%;min-height:132px;border:none;border-radius:14px;background:#f7f7f5;padding:12px 14px;font-size:15px;line-height:1.7;outline:none;resize:vertical;font-family:inherit;color:#1a1a1a;}
+.backup-textarea::placeholder{color:#bbb;}
+
+
+
+/* ===== Late-stage UI refinements ===== */
+
+#frame, #frame *:not(.ti):not([class^="ti-"]):not([class*=" ti-"]){
+  font-family:'Pretendard',sans-serif !important;
+}
+button,input,textarea,select{
+  font-family:'Pretendard',sans-serif !important;
+}
+/* Touch-only UI: restore the previous borderless tap appearance. */
+button,
+[role="button"],
+.settings-item,
+.top-icon-btn,
+.hdr-btn,
+.memo-btn,
+.cat-manage-btn,
+.nav-btn,
+#fab{
+  -webkit-tap-highlight-color:transparent;
+}
+button:focus,
+button:focus-visible,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+.settings-item:focus,
+.settings-item:focus-visible,
+.top-icon-btn:focus,
+.top-icon-btn:focus-visible,
+.hdr-btn:focus,
+.hdr-btn:focus-visible,
+.memo-btn:focus,
+.memo-btn:focus-visible,
+.cat-manage-btn:focus,
+.cat-manage-btn:focus-visible,
+.nav-btn:focus,
+.nav-btn:focus-visible,
+#fab:focus,
+#fab:focus-visible{
+  outline:none !important;
+}
+.ti,[class^="ti-"],[class*=" ti-"]{
+  font-family:"tabler-icons" !important;
+  font-style:normal;
+  font-weight:400 !important;
+  speak:never;
+}
+
+
+
+
+.backup-card-desc{font-size:16px !important;line-height:1.7 !important;}
+
+
+.cat-manage-actions{
+  display:grid;
+  grid-template-columns:28px 28px 28px;
+  align-items:center;
+  justify-items:center;
+  column-gap:6px;
+  flex-shrink:0;
+}
+.cat-manage-actions .cat-manage-count{text-align:center;}
+.cat-manage-actions .cat-manage-btn{
+  width:28px;
+  height:28px;
+  padding:0;
+  justify-content:center;
+  align-items:center;
+}
+
+
+.intro-brand{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.intro-brand-icon{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#4a7c59;
+  font-size:34px;
+}
+.intro-brand-title{
+  color:#1a1a1a;
+}
+.intro-brand-chip{
+  padding:5px 14px;
+  border-radius:999px;
+  background:#4a7c59;
+  color:#ffffff;
+  font-size:13px;
+  font-weight:600;
+  line-height:1;
+}
+
+
+
+.custom-modal{
+  position:absolute;
+  inset:0;
+  z-index:300;
+  background:rgba(0,0,0,.28);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.custom-modal-box{
+  width:100%;
+  max-width:310px;
+  background:#fff;
+  border-radius:22px;
+  padding:22px 18px 16px;
+  box-shadow:0 12px 34px rgba(0,0,0,.18);
+  animation:customModalIn .18s ease;
+}
+@keyframes customModalIn{
+  from{opacity:0;transform:translateY(8px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.custom-modal-title{
+  font-size:17px;
+  font-weight:700;
+  color:#1a1a1a;
+  text-align:center;
+  margin-bottom:9px;
+}
+.custom-modal-message{
+  font-size:15px;
+  line-height:1.65;
+  color:#333;
+  white-space:pre-wrap;
+  text-align:center;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+}
+.custom-modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:18px;
+}
+.custom-modal-btn{
+  flex:1;
+  height:42px;
+  border-radius:14px;
+  border:none;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:'Pretendard',sans-serif !important;
+}
+.custom-modal-btn.cancel{
+  background:#f2f0eb;
+  color:#666;
+}
+.custom-modal-btn.ok{
+  background:#4a7c59;
+  color:#fff;
+}
+.custom-modal-btn:active{transform:scale(.98);}
+
+
+.app-toast{
+  position:absolute;
+  left:50%;
+  bottom:92px;
+  transform:translateX(-50%);
+  z-index:350;
+  max-width:82%;
+  padding:10px 15px;
+  border-radius:999px;
+  background:rgba(30,30,30,.86);
+  color:#fff;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.4;
+  text-align:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.16);
+  pointer-events:none;
+  opacity:1;
+  transition:opacity .2s ease, transform .2s ease;
+}
+.app-toast.toast-hidden{
+  opacity:0;
+  transform:translateX(-50%) translateY(8px);
+}
+
+
+#lock .intro-brand{
+  margin-top:8px;
+  margin-bottom:2px;
+}
+#lock .intro-brand-icon{
+  width:40px;
+  height:40px;
+  margin-bottom:2px;
+  font-size:31px;
+}
+#lock .intro-brand-title{
+  font-size:20px;
+  font-weight:600;
+}
+#lock .intro-brand-chip{
+  margin-top:0;
+}
+#lock{
+  background:linear-gradient(to top,#fff 70%,rgba(255,255,255,0)) !important;
+}
+
+
+#lock .lock-sub{
+  margin-top:28px !important;
+  margin-bottom:-2px !important;
+}
+#lock .pin-dots{
+  margin-top:0 !important;
+  margin-bottom:-6px !important;
+}
+#lock .keypad{
+  margin-top:0 !important;
+}
+
+
+
+
+#splash.splash-center{
+  justify-content:center;
+  align-items:center;
+  padding-top:0;
+}
+#splash.splash-center .intro-brand{
+  transform:translateY(-5vh);
+}
+#splash .intro-brand-title{
+  font-size:22px;
+  font-weight:700;
+}
+
+
+
+.cat-manage-row .drag-handle,
+.cat-manage-row .cat-manage-name,
+.cat-manage-row .cat-manage-count,
+.cat-manage-row .cat-manage-btn{
+  min-height:28px;
+  display:flex;
+  align-items:center;
+}
+#cat-rows .cat-manage-name.editing{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  line-height:1.4 !important;
+  font:inherit !important;
+  color:inherit !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  caret-color:#4a7c59 !important;
+}
+
+
+/* ===== Responsive shell ===== */
+/* PC 미리보기는 기존 카드형 유지 */
+@media (min-width: 641px){
+  body{
+    background:#f0f0f0;
+    display:flex;
+    justify-content:center;
+    padding:20px;
+  }
+  #frame{
+    width:390px;
+    max-width:390px;
+    height:700px;
+    border-radius:20px;
+    box-shadow:0 4px 24px rgba(0,0,0,.12);
+  }
+}
+
+
+:root{
+  --pp-main-button-height:48px;
+  --pp-compact-control-height:44px;
+}
+
+
+/* ===== Componentized controls (safe shared declarations) ===== */
+/* 주요 액션 버튼은 44px 유지 */
+.memo-add-btn,
+.restore-btn,
+.custom-modal-btn,
+.backup-btn{
+  height:44px !important;
+  min-height:44px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  box-sizing:border-box !important;
+}
+
+
+
+
+
+/* ===== Overlay composer behavior ===== */
+.settings-handle{
+  cursor:grab;
+  touch-action:none;
+}
+.settings-handle:active{
+  cursor:grabbing;
+}
+
+
+#view-detail{
+  position:relative !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+#detail-scroll{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-bottom:calc(178px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 메모 입력 영역을 스크롤 흐름 밖의 하단 오버레이로 분리 */
+#memo-add-area{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  z-index:30 !important;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-top:none !important;
+}
+
+/* 실제 보이는 메모 입력 박스만 카드처럼 */
+#memo-add-area > div{
+  background:#f7f7f5 !important;
+  border:0.5px solid #e0e0e0 !important;
+  border-radius:14px !important;
+  overflow:hidden !important;
+  box-shadow:0 4px 16px rgba(0,0,0,.10) !important;
+}
+
+/* 수정 모드에서는 메모 입력 오버레이를 숨긴다. */
+#view-detail.detail-editing #memo-add-area{
+  display:none !important;
+}
+
+
+html,
+body{
+  overscroll-behavior:none !important;
+  touch-action:manipulation;
+}
+body,
+#frame{
+  overscroll-behavior-y:none !important;
+}
+#frame{
+  box-sizing:border-box;
+}
+
+@media (prefers-color-scheme: dark){
+  html,
+  body{
+    background:#121212 !important;
+    color:#fff;
+  }
+  #frame{
+    background:#121212 !important;
+  }
+  #splash,
+  #lock{
+    background:#121212 !important;
+    color:#fff;
+  }
+  #splash .intro-brand-title,
+  #lock .intro-brand-title,
+  #lock .lock-sub,
+  #lock .lock-hint{
+    color:#fff !important;
+  }
+}
+@media (display-mode: standalone), (max-width:640px){
+  html,
+  body{
+    width:100%;
+    height:100%;
+    min-height:100dvh;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+  }
+  #frame{
+    width:100vw !important;
+    max-width:none !important;
+    height:100dvh !important;
+    min-height:100dvh !important;
+    max-height:100dvh !important;
+    margin:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    /* RC10B: pin the app shell to the viewport itself, not to document flow.
+       Some Android browsers/WebViews force-scroll the document to reveal a
+       focused input, bypassing body{overflow:hidden}. A fixed #frame can't
+       be dragged along by that scroll (transform on the frame's ancestors
+       would break this, but there is none here), so the topbar stays put
+       even if the underlying document momentarily scrolls. */
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    /* RC10C: Since Chrome 108, Android Chrome no longer shrinks the layout
+       viewport when the keyboard opens (it now matches iOS Safari) — only
+       the *visual* viewport shifts down (visualViewport.offsetTop > 0).
+       #frame is fixed to the (unchanged) layout viewport, so without this
+       compensation its top — and the TopBar inside it — scrolls out of the
+       area the visual viewport is actually showing. --vv-offset is kept in
+       sync with visualViewport.offsetTop by bootstrap.js at all times. */
+    transform:translateY(var(--vv-offset, 0px)) !important;
+  }
+  #splash,
+  #settings-overlay{
+    border-radius:0 !important;
+  }
+  #settings-overlay{
+    position:absolute !important;
+    inset:0 !important;
+  }
+  #settings-sheet{
+    border-radius:20px 20px 0 0 !important;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #bottom-nav{
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    padding:0 16px !important;
+  }
+  .app-toast{
+    bottom:calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .slide{
+    padding-bottom:calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #cat-view,
+  #new-form{
+    padding-bottom:calc(128px + var(--new-submit-kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (prefers-color-scheme: dark){
+  #frame,
+  #splash,
+  #lock{
+    background:#121212 !important;
+    color:#fff;
+  }
+}
+
+
+#custom-modal.alert-mode #custom-modal-cancel{
+  display:none !important;
+}
+#custom-modal.alert-mode #custom-modal-ok{
+  flex:1 1 100% !important;
+  width:100% !important;
+}
+
+
+#view-cat .cat-add-row{
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  max-width:100%;
+  min-height:44px;
+  height:auto;
+  margin:0 0 24px;
+  box-sizing:border-box;
+  overflow:visible;
+}
+
+#view-cat .cat-add-row input{
+  flex:1 1 0;
+  width:auto;
+  min-width:0;
+  max-width:none;
+  height:44px;
+  min-height:44px;
+  padding:0 14px;
+  border:0;
+  border-radius:999px;
+  outline:0;
+  background:#f2f2f0;
+  color:#1a1a1a;
+  font-size:15px;
+  line-height:44px;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+#view-cat .cat-add-row button{
+  display:flex;
+  flex:0 0 44px;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  min-width:44px;
+  min-height:44px;
+  max-width:44px;
+  max-height:44px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#4a7c59;
+  color:#fff;
+  font-size:20px;
+  font-weight:600;
+  line-height:1;
+  cursor:pointer;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+
+
+#topbar-title{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  line-height:48px !important;
+  text-align:center !important;
+  pointer-events:none !important;
+  font-size:17px !important;
+  font-weight:600 !important;
+  color:#1a1a1a !important;
+}
+#topbar-back{z-index:1 !important;color:#888 !important;}
+#topbar-actions{
+  margin-left:auto !important;
+  display:flex !important;
+  gap:4px !important;
+  z-index:1 !important;
+}
+#view-new,
+#view-detail,
+#view-archive,
+#view-cat,
+#view-backup{
+  overflow:hidden !important;
+  min-height:0 !important;
+}
+#view-new > .restore-btn-wrap{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:var(--new-submit-kb-offset, 0px) !important;
+  z-index:36 !important;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  background:transparent !important;
+  transition:bottom .18s ease !important;
+  pointer-events:auto !important;
+}
+
+
+
+
+#view-new #new-title{
+  overflow:hidden !important;
+  resize:none !important;
+}
+
+#view-new #new-body{
+  width:100% !important;
+  font-size:17px !important;
+  line-height:1.7 !important;
+  border:none !important;
+  padding:4px 0 12px !important;
+  outline:none !important;
+  resize:none !important;
+  background:transparent !important;
+  font-family:inherit !important;
+  min-height:80px !important;
+  max-height:none !important;
+  height:auto;
+  color:#333 !important;
+  word-break:keep-all !important;
+  overflow-wrap:break-word !important;
+  overflow:hidden !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+
+/* ===== Archive page ===== */
+/* 응답함 */
+#view-archive{
+  overflow:hidden !important;
+  min-height:0 !important;
+  background:#fff !important;
+}
+
+
+#archive-slide-container{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+#archive-slides-wrapper,
+#archive-slides-wrapper .slide{
+  height:100% !important;
+}
+#archive-slides-wrapper .slide{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:10px 14px calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+
+/* ===== Category page final layout ===== */
+/* 카테고리 관리 */
+#view-cat{
+  overflow:hidden !important;
+  min-height:0 !important;
+  background:#fff !important;
+}
+
+
+
+/* ===== Backup page final layout ===== */
+/* 백업 */
+#view-backup{
+  background:#fff !important;
+}
+
+#view-backup .backup-section-label:first-child{
+  margin-top:0 !important;
+}
+
+
+#frame.page-list #topbar-back,
+#frame.page-archive #topbar-back{
+  display:none !important;
+}
+
+
+#view-new{
+  overflow:hidden !important;
+  min-height:0 !important;
+  background:#fff !important;
+}
+#view-new #new-form{
+  display:block !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:0 0 calc(100px + var(--new-submit-kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
+  scroll-padding-bottom:calc(100px + var(--new-submit-kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
+}
+#view-new #new-body,
+#detail-body-input{
+  padding:0 !important;
+  max-height:none !important;
+  overflow:hidden !important;
+}
+
+#view-list{
+  overflow:hidden !important;
+  min-height:0 !important;
+}
+
+
+/* RC7N28: restore overlay action button shadow and answered-detail overlay */
+#view-new > .restore-btn-wrap .restore-btn{
+  box-shadow:0 -2px 10px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.12) !important;
+}
+
+#view-detail.archived-detail #detail-scroll{
+  padding-bottom:calc(128px + var(--new-submit-kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+#view-detail.archived-detail #restore-btn-wrap{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  z-index:35 !important;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
+#view-detail.archived-detail #restore-btn-wrap .restore-btn{
+  width:100% !important;
+  height:44px !important;
+  min-height:44px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  font-size:15px !important;
+  font-weight:600 !important;
+  border-radius:12px !important;
+  border:1.5px solid #4a7c59 !important;
+  background:#fff !important;
+  color:#4a7c59 !important;
+  cursor:pointer !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  line-height:1 !important;
+  box-sizing:border-box !important;
+  box-shadow:0 -2px 10px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.10) !important;
+}
+
+#view-detail:not(.archived-detail) #restore-btn-wrap{
+  display:none !important;
+}
+
+/* 응답함 상세 수정 중에는 복원 동작을 잠시 숨긴다. */
+#view-detail.archived-detail.detail-editing #restore-btn-wrap{
+  display:none !important;
+}
+
+.is-hidden{
+  display:none !important;
+}
+.is-flex{
+  display:flex !important;
+}
+.is-block{
+  display:block !important;
+}
+.is-visible{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+
+#view-new #new-body{
+  min-height:100px !important;
+}
+
+
+.detail-category-readonly{pointer-events:none;}
+.detail-answered-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  min-height:20px;
+}
+#view-detail.detail-editing #edit-detail-btn{
+  color:#4a7c59;
+}
+
+#detail-body-input{
+  display:block;
+  box-sizing:border-box;
+  min-height:0;
+  margin:0;
+}
+
+.detail-created-at{
+  margin:0;
+  font-size:14px;
+  line-height:1.4;
+  color:#bbb;
+}
+
+
+/* RC7N34: detail cursor state is controlled by CSS, not inline JS */
+#detail-title-input,
+#detail-body-input{
+  cursor:default;
+}
+#view-detail.detail-editing #detail-title-input,
+#view-detail.detail-editing #detail-body-input{
+  cursor:text;
+}
+
+
+/* Compositor-only TopBar collapse
+   - Keep TopBar height/flex-basis fixed so scrolling never reflows #frame.
+   - Move the TopBar and active list/archive view visually with transforms only.
+   - This is an A/B test for the mobile scroll jitter regression. */
+#frame{
+  --topbar-collapse-offset:0px;
+  overflow-anchor:none;
+}
+#topbar{
+  height:48px !important;
+  min-height:48px !important;
+  max-height:48px !important;
+  flex:0 0 48px !important;
+  transform:none !important;
+  overflow:hidden !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  will-change:transform !important;
+  transition:none !important;
+  overflow-anchor:none;
+  contain:paint;
+}
+
+/* TopBar collapse is explicitly limited to list and archive pages. */
+#frame.page-list #topbar,
+#frame.page-archive #topbar{
+  transform:translate3d(0, calc(-1 * var(--topbar-collapse-offset, 0px)), 0) !important;
+}
+
+#topbar-back,
+#topbar-title,
+#topbar-actions{
+  transform:none !important;
+  transition:none !important;
+  will-change:auto !important;
+}
+#view-list,
+#view-archive{
+  margin-top:0 !important;
+  transform:translate3d(0, calc(-1 * var(--topbar-collapse-offset, 0px)), 0) !important;
+  will-change:transform !important;
+  transition:none !important;
+  overflow-anchor:none;
+}
+#slide-container,
+#archive-slide-container{
+  margin-top:0 !important;
+  transform:none !important;
+  transition:none !important;
+  overflow-anchor:none;
+}
+
+/* Keep scroll anchoring disabled on horizontal swipe elements,
+   but preserve their transform/transition behavior. */
+#slides-wrapper,
+#archive-slides-wrapper,
+.slide{
+  overflow-anchor:none;
+}
+
+
+/* RC9A04: TopBar slogan typography and no topbar settings affordance
+   - TopBar list/archive title is a fixed English slogan.
+   - Settings remains only in the bottom tab bar.
+   - TopBar action area remains only for detail edit/delete buttons. */
+#frame.page-list #topbar-title,
+#frame.page-archive #topbar-title{
+  font-family:"Caveat", cursive !important;
+  font-size:18px !important;
+  color:#4A7C59 !important;
+}
+#frame.page-list #topbar-actions,
+#frame.page-archive #topbar-actions{
+  display:none !important;
+}
+
+
+/* ===== Unified category tab bars ===== */
+#tab-bar,
+#archive-tab-bar{
+  display:flex !important;
+  flex:0 0 40px !important;
+  min-height:40px !important;
+  height:40px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  padding:0 10px !important;
+  scrollbar-width:none !important;
+  border-bottom:0.5px solid rgba(238,238,238,.45) !important;
+  background:#fff !important;
+}
+
+#tab-bar::-webkit-scrollbar,
+#archive-tab-bar::-webkit-scrollbar{
+  display:none;
+}
+
+/* ===== Unified search controls ===== */
+#search-wrap,
+#archive-search-wrap{
+  display:block !important;
+  flex:0 0 auto !important;
+  padding:8px 14px 4px !important;
+  background:#fff !important;
+  border-bottom:none !important;
+  overflow:visible !important;
+}
+
+.search-box{
+  position:relative !important;
+  height:44px !important;
+}
+
+#search-input,
+#archive-search-input{
+  width:100% !important;
+  height:44px !important;
+  min-height:44px !important;
+  padding:0 40px !important;
+  border:none !important;
+  border-radius:999px !important;
+  background:#f2f2f0 !important;
+  outline:none !important;
+  color:#1a1a1a !important;
+  font-family:inherit !important;
+  font-size:15px !important;
+  line-height:44px !important;
+  box-sizing:border-box !important;
+}
+
+#search-input::placeholder,
+#archive-search-input::placeholder{
+  color:#bbb !important;
+}
+
+.search-icon{
+  position:absolute !important;
+  left:14px !important;
+  top:50% !important;
+  width:18px !important;
+  height:18px !important;
+  transform:translateY(-50%) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#bbb !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+}
+
+.search-icon i{
+  display:block !important;
+  font-size:17px !important;
+  line-height:1 !important;
+  color:#bbb !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+#search-clear{
+  position:absolute !important;
+  right:12px !important;
+  top:50% !important;
+  width:30px !important;
+  height:30px !important;
+  transform:translateY(-50%) !important;
+  border:none !important;
+  background:none !important;
+  color:#bbb !important;
+  font-size:16px !important;
+  cursor:pointer !important;
+  display:none;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+#search-clear.visible{
+  display:flex !important;
+}
+
+
+/* Refactor 6: remaining inline-style cleanup */
+.lock-back-btn{
+  display:none;
+  position:absolute;
+  top:16px;
+  left:16px;
+  background:none;
+  border:0;
+  cursor:pointer;
+  font-size:22px;
+  color:#888;
+  padding:4px;
+}
+.key-placeholder{visibility:hidden;}
+.topbar-back-btn{
+  display:none;
+  font-size:22px;
+  padding:4px 8px 4px 0;
+  z-index:1;
+}
+.lock-toggle-sub{
+  font-size:12px;
+  color:#fff;
+  margin-right:10px;
+}
+.settings-title-spaced{margin-top:8px;}
+.visually-hidden-file{display:none;}
+
+/* TopBar collapse scope guard
+   Only the prayer list and archive may use --topbar-collapse-offset.
+   Detail/edit and other fixed-header pages always keep the TopBar visible. */
+#frame.page-detail,
+#frame.page-new,
+#frame.page-cat,
+#frame.page-backup,
+#frame.page-lock{
+  --topbar-collapse-offset:0px !important;
+}
+
+
+/* Keep detail editing content comfortably above the software keyboard. */
+#view-detail.detail-editing #detail-scroll{
+  padding-bottom:calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+  scroll-padding-bottom:calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+
+/* Shared prayer editor component for new, detail, and edit states. */
+:root{
+  --prayer-editor-inline:16px;
+  --prayer-editor-top:20px;
+  --prayer-editor-title-body-gap:16px;
+  --prayer-editor-category-title-gap:20px;
+}
+
+/* The same category → title → body skeleton is used in all three states. */
+.prayer-editor{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--prayer-editor-top) var(--prayer-editor-inline) 0;
+}
+.prayer-editor-category{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 var(--prayer-editor-category-title-gap);
+  padding:0 !important;
+}
+.prayer-editor-title{
+  margin:0 0 var(--prayer-editor-title-body-gap);
+  padding:0 !important;
+}
+.prayer-editor-body{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin:0;
+  padding:0 !important;
+}
+
+/* Outer containers own scrolling; the shared component owns content spacing. */
+#view-new #new-form > .prayer-editor{
+  min-height:100%;
+}
+#view-new #new-form > .prayer-editor > div{
+  padding-top:0 !important;
+}
+
+/* Detail view and detail edit use the exact same editor skeleton. */
+#detail-cat-wrap{
+  padding:0 !important;
+  margin-bottom:var(--prayer-editor-category-title-gap) !important;
+}
+#detail-title-wrap{
+  padding:0 !important;
+  margin-bottom:var(--prayer-editor-title-body-gap) !important;
+}
+#detail-body-wrap{
+  padding:0 !important;
+}
+
+/* Keep memo cards aligned with the shared editor's 16px content edge. */
+#memo-list{
+  padding-left:var(--prayer-editor-inline);
+  padding-right:var(--prayer-editor-inline);
+}
+
+/* Samsung Internet detail textarea resize A/B test */
+#view-detail.detail-editing #detail-body-input{
+  min-height:180px !important;
+  height:40vh !important;
+  max-height:40vh !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:auto !important;
+}

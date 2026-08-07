@@ -405,31 +405,73 @@ function initGlobalKeyboardScrollGuard(){
     ].includes((el.type||'text').toLowerCase());
   }
 
+  function isFixedTopbarPage(frame){
+    return !!(frame &&
+      !frame.classList.contains('page-list') &&
+      !frame.classList.contains('page-archive') &&
+      !frame.classList.contains('page-lock'));
+  }
+
   function restoreAppViewport(){
     if(!guarding) return;
 
     const frame=document.getElementById('frame');
     const topbar=document.getElementById('topbar');
+    const fixedTopbarPage=isFixedTopbarPage(frame);
+    const vv=window.visualViewport;
 
-    if(window.scrollX!==0 || window.scrollY!==0){
-      window.scrollTo(0,0);
-    }
+    // Android Chrome/Samsung Internet may pan the *visual* viewport to keep
+    // the focused field visible without changing window.scrollY. In that
+    // state a fixed #frame at layout-viewport top:0 can sit above the visible
+    // screen. Pin fixed-header pages to the current visual viewport instead.
+    if(frame && fixedTopbarPage && vv){
+      const vvTop=Math.max(0,Math.round(vv.offsetTop||0));
+      const vvLeft=Math.max(0,Math.round(vv.offsetLeft||0));
+      const vvHeight=Math.max(1,Math.round(vv.height||window.innerHeight));
+      const vvWidth=Math.max(1,Math.round(vv.width||window.innerWidth));
 
-    if(frame){
+      frame.style.setProperty('top',vvTop+'px','important');
+      frame.style.setProperty('left',vvLeft+'px','important');
+      frame.style.setProperty('right','auto','important');
+      frame.style.setProperty('bottom','auto','important');
+      frame.style.setProperty('width',vvWidth+'px','important');
+      frame.style.setProperty('max-width','none','important');
+      frame.style.setProperty('height',vvHeight+'px','important');
+      frame.style.setProperty('min-height',vvHeight+'px','important');
+      frame.style.setProperty('max-height',vvHeight+'px','important');
+      frame.style.setProperty('transform','none','important');
+    }else if(frame){
       frame.style.setProperty('top','0px','important');
       frame.style.setProperty('left','0px','important');
       frame.style.setProperty('transform','none','important');
     }
 
-    // Any page whose TopBar does not scroll-collapse (new / detail / edit /
-    // category / backup) must keep its TopBar forced visible while the
-    // keyboard is open. Only list/archive are allowed to collapse it.
-    const isFixedTopbarPage = frame && !frame.classList.contains('page-list') && !frame.classList.contains('page-archive');
-    if(isFixedTopbarPage && topbar){
+    if(window.scrollX!==0 || window.scrollY!==0){
+      window.scrollTo(0,0);
+    }
+
+    // New/detail/category/backup must keep the TopBar visible while a text
+    // field is active. List/archive keep their intentional collapse behavior.
+    if(fixedTopbarPage && topbar){
       topbar.classList.add('visible');
       topbar.style.setProperty('display','flex','important');
       topbar.style.setProperty('transform','none','important');
     }
+  }
+
+  function restoreFrameAfterKeyboard(){
+    const frame=document.getElementById('frame');
+    if(!frame) return;
+    frame.style.removeProperty('right');
+    frame.style.removeProperty('bottom');
+    frame.style.removeProperty('width');
+    frame.style.removeProperty('max-width');
+    frame.style.removeProperty('height');
+    frame.style.removeProperty('min-height');
+    frame.style.removeProperty('max-height');
+    frame.style.setProperty('top','0px','important');
+    frame.style.setProperty('left','0px','important');
+    frame.style.setProperty('transform','none','important');
   }
 
   function runGuardLoop(){
@@ -450,9 +492,12 @@ function initGlobalKeyboardScrollGuard(){
   function stopGuardLater(){
     requestAnimationFrame(()=>{
       guarding=isTextEntryElement(document.activeElement);
-      if(!guarding && guardRaf){
-        cancelAnimationFrame(guardRaf);
-        guardRaf=0;
+      if(!guarding){
+        if(guardRaf){
+          cancelAnimationFrame(guardRaf);
+          guardRaf=0;
+        }
+        restoreFrameAfterKeyboard();
       }
     });
   }

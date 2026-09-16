@@ -1,20 +1,13 @@
-Praysion Note - answer flow + PIN fix
+Detail edit scroll fix
 
-Changed files only:
-- index.html
+Modified files only:
 - prayer.js
-- settings.js
-- bootstrap.js
-- service-worker.js
+  - Restored auto-height resizing for #detail-body-input while editing.
+  - Keeps body textarea in the outer #detail-scroll flow instead of nested scrolling.
 - assets/app.css
+  - Removed the old Samsung Internet A/B block that forced 40vh height and overflow-y:auto on detail body editing.
+  - Existing TopBar collapse guards and global viewport/keyboard stabilization are untouched.
+- service-worker.js
+  - Cache version bumped to 1.0.82-detail-scroll-fix.
 
-PIN fix:
-- Removed an invalid HTML <script> tag that was embedded inside bootstrap.js.
-- bootstrap.js contains the click/keyboard event binding for the PIN keypad, so the syntax error prevented PIN input from working.
-- Service worker cache version bumped to 1.0.81-pin-fix.
-
-After upload:
-1. Replace these files in the same paths in the GitHub repository.
-2. Wait for GitHub Pages deployment to finish.
-3. Close the installed PWA completely and reopen it.
-4. If the old version persists, remove the installed PWA/site data once and reinstall from the updated Pages site.
+No HTML/router/data model changes.

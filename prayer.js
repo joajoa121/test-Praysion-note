@@ -787,10 +787,11 @@ function ensureDetailActionDelegation(detailView){
       resizeTextareaToContent(field);
     }
 
-    // Samsung Internet A/B test:
-    // Do not resize #detail-body-input on every IME/input event.
-    // Repeated textarea height changes can trigger viewport relayout
-    // while the software keyboard is open.
+    // Keep the detail body as part of the outer #detail-scroll flow.
+    // The textarea grows with its content instead of becoming a nested scroll area.
+    if(field?.id==='detail-body-input'){
+      resizeTextareaToContent(field);
+    }
   });
   detailView.dataset.detailActionsBound='1';
 }

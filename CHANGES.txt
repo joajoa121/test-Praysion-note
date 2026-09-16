@@ -1,13 +1,18 @@
-Detail edit scroll fix
+Praysion Note - Detail fixed topbar test
 
-Modified files only:
-- prayer.js
-  - Restored auto-height resizing for #detail-body-input while editing.
-  - Keeps body textarea in the outer #detail-scroll flow instead of nested scrolling.
+Changed files only:
 - assets/app.css
-  - Removed the old Samsung Internet A/B block that forced 40vh height and overflow-y:auto on detail body editing.
-  - Existing TopBar collapse guards and global viewport/keyboard stabilization are untouched.
 - service-worker.js
-  - Cache version bumped to 1.0.82-detail-scroll-fix.
 
-No HTML/router/data model changes.
+What changed
+1. Detail page TopBar is removed from normal flex/scroll flow.
+2. On mobile/PWA, detail TopBar uses position:fixed at the viewport top.
+3. Detail view becomes a separate fixed layer starting at 48px below the TopBar.
+4. Only #detail-scroll scrolls inside that layer.
+5. Existing list/archive TopBar collapse and anti-jitter rules are kept.
+6. Existing keyboard/viewport guard JavaScript is kept unchanged as a fallback.
+7. Service worker cache version: 1.0.83-detail-fixed-topbar
+
+Test especially:
+- Open prayer detail -> Edit -> focus title/body -> keyboard open -> scroll content.
+- TopBar should remain at the top while content scrolls below it.

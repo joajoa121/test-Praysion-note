@@ -1,15 +1,9 @@
-Praysion Note - answer/edit bottom action fix
-Version: 1.0.86-answer-edit-flow
+Praysion Note - answer/edit flow v2
 
-Changed files only:
-- prayer.js
-- assets/app.css
-- service-worker.js
-
-Behavior:
-1. Active prayer detail: show [응답완료], not gratitude composer.
-2. Active prayer edit mode: keep [응답완료] visible; gratitude composer remains hidden.
-3. If [응답완료] is pressed while editing, validate/save the current draft first, then archive the prayer.
-4. After archive, stay on the same detail page and show the gratitude composer.
-5. Fixed reversed post-edit visibility condition that could show the gratitude composer for an active prayer.
-6. Existing Visual Viewport/topbar behavior is unchanged.
+변경 사항
+1. 기도 상세에서 수정 모드에 들어가면 [응답완료] 버튼을 숨깁니다.
+2. 탑바의 저장(체크) 버튼으로 수정 저장이 끝나고 보기 모드로 돌아오면 [응답완료] 버튼이 다시 표시됩니다.
+3. [응답완료] 후 같은 상세페이지에서 감사 기록 입력창이 표시됩니다.
+4. [감사 기록하기] 버튼을 입력창 내부 우하단 작은 버튼이 아니라, 입력창 아래 한 줄 전체폭 버튼으로 변경했습니다.
+5. 기존 탑바/Visual Viewport 보정 코드는 변경하지 않았습니다.
+6. Service Worker cache version: 1.0.87-answer-edit-flow-v2

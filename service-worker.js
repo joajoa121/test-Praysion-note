@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.86-answer-edit-flow";
+const APP_VERSION = "1.0.87-answer-edit-flow-v2";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

@@ -1053,8 +1053,10 @@ async function toggleDetailEdit(event){
         titleEl.setSelectionRange(titleEl.value.length, titleEl.value.length);
       }
     });
+    // 수정 중에는 하단 액션을 모두 숨긴다.
+    // 저장이 완료되어 보기 모드로 돌아온 뒤에만 상태에 맞는 하단 액션을 다시 표시한다.
     if(memoAddEl) setHidden(memoAddEl, true);
-    if(answerActionEl) setHidden(answerActionEl, !!source.archived);
+    if(answerActionEl) setHidden(answerActionEl, true);
     if(viewDetailEl) viewDetailEl.classList.add('detail-editing');
     renderMemos(source);
     setDetailEditButtonMode(btn,'save');

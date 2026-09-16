@@ -1409,3 +1409,87 @@ body,
 #restore-btn-wrap{
   display:none !important;
 }
+
+/* =========================================================
+   RC11: Detail screen fixed-layer layout
+   - Detail topbar is removed from the normal flex flow.
+   - Only #detail-scroll scrolls; the topbar never participates.
+   - List/archive compositor collapse rules remain unchanged.
+   ========================================================= */
+
+/* Desktop/card shell: pin detail topbar to the frame and place detail below it. */
+#frame.page-detail #topbar{
+  position:absolute !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  z-index:120 !important;
+  transform:none !important;
+  margin:0 !important;
+}
+
+#frame.page-detail #view-detail{
+  position:absolute !important;
+  top:48px !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  overflow:hidden !important;
+  margin:0 !important;
+  transform:none !important;
+}
+
+#frame.page-detail #detail-scroll{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overscroll-behavior:contain !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  touch-action:pan-y !important;
+}
+
+/* Installed/mobile layout: detach both layers from document scrolling entirely. */
+@media (display-mode: standalone), (max-width:640px){
+  #frame.page-detail #topbar{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    width:100vw !important;
+    height:48px !important;
+    min-height:48px !important;
+    max-height:48px !important;
+    z-index:220 !important;
+    transform:none !important;
+    backface-visibility:hidden !important;
+    -webkit-backface-visibility:hidden !important;
+  }
+
+  #frame.page-detail #view-detail{
+    position:fixed !important;
+    top:48px !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    width:100vw !important;
+    height:auto !important;
+    min-height:0 !important;
+    z-index:20 !important;
+    background:#fff !important;
+    transform:none !important;
+    overscroll-behavior:none !important;
+  }
+
+  #frame.page-detail #detail-scroll{
+    position:relative !important;
+    width:100% !important;
+    height:100% !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    -webkit-overflow-scrolling:touch !important;
+    overscroll-behavior-y:contain !important;
+  }
+}

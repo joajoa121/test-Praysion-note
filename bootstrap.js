@@ -406,6 +406,15 @@ function initGlobalKeyboardScrollGuard(){
     if(!frame.classList.contains('page-detail')){
       frame.style.removeProperty('--detail-vv-top');
       frame.style.removeProperty('--detail-vv-height');
+
+      // Detail mode temporarily overrides TopBar transform/display inline.
+      // Remove those overrides as soon as we leave detail so list/archive
+      // compositor collapse CSS can take control again.
+      const topbar=document.getElementById('topbar');
+      if(topbar){
+        topbar.style.removeProperty('display');
+        topbar.style.removeProperty('transform');
+      }
       return;
     }
 

@@ -1,20 +1,21 @@
-Praysion Note - Visual Viewport shell test
+Praysion Note - detail Visual Viewport / list TopBar split fix
 
 수정 파일
 - bootstrap.js
-- assets/app.css
-- service-worker.js
+  - 상세 화면에서만 적용하는 TopBar inline transform/display 보정을 유지합니다.
+  - 상세 화면을 벗어날 때 해당 inline 보정을 즉시 제거합니다.
+  - 따라서 기도목록/응답함에서는 기존 compositor 기반 TopBar 슬라이드 CSS가 다시 정상적으로 제어합니다.
+  - 상세/수정 화면의 Visual Viewport 보정은 그대로 유지합니다.
 
-핵심 변경
-1. 상세/수정 화면에서 #frame 전체가 visualViewport.offsetTop / height를 따라가도록 변경
-2. topbar는 #frame 내부 고정 레이어, #view-detail은 그 아래 독립 레이어로 분리
-3. 실제 세로 스크롤은 #detail-scroll 하나만 담당
-4. 상세 화면에서는 기존 window.scrollTo(0,0) 강제 복구와 충돌하지 않도록 분기
-5. 목록/응답함의 기존 탑바 collapse / 흔들림 방지 로직은 유지
-6. Service Worker 버전: 1.0.84-visual-viewport-shell
+- service-worker.js
+  - APP_VERSION: 1.0.85-detail-vv-split
+
+변경하지 않음
+- assets/app.css (이전 1.0.84 Visual Viewport 구조 그대로 사용)
+- prayer.js / index.html / settings.js 등
 
 테스트 포인트
-- 모바일/PWA: 상세 -> 수정 -> 제목/본문 포커스 -> 키보드 열린 상태에서 스크롤
-- 탑바가 visible viewport 최상단에 고정되는지
-- 본문만 #detail-scroll 안에서 움직이는지
-- 목록/응답함의 기존 탑바 접힘 동작이 그대로인지
+1. 기도목록에서 스크롤 시 슬로건 TopBar가 이전처럼 접히고 나타나는지
+2. 응답함에서도 동일한지
+3. 기도 상세 -> 수정 -> 키보드 열린 상태에서 TopBar가 상단에 유지되는지
+4. 상세에서 뒤로 나온 뒤 목록 TopBar 슬라이드가 즉시 정상 동작하는지

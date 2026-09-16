@@ -1,9 +1,13 @@
-Praysion Note - answer/edit flow v2
+Praysion Note - answer/edit flow v3
 
-변경 사항
-1. 기도 상세에서 수정 모드에 들어가면 [응답완료] 버튼을 숨깁니다.
-2. 탑바의 저장(체크) 버튼으로 수정 저장이 끝나고 보기 모드로 돌아오면 [응답완료] 버튼이 다시 표시됩니다.
-3. [응답완료] 후 같은 상세페이지에서 감사 기록 입력창이 표시됩니다.
-4. [감사 기록하기] 버튼을 입력창 내부 우하단 작은 버튼이 아니라, 입력창 아래 한 줄 전체폭 버튼으로 변경했습니다.
-5. 기존 탑바/Visual Viewport 보정 코드는 변경하지 않았습니다.
-6. Service Worker cache version: 1.0.87-answer-edit-flow-v2
+수정 사항
+1. 상세 수정 모드(.detail-editing)에서는 하단 [응답완료]와 감사 입력 영역을 CSS에서도 강제로 숨김.
+2. 수정 저장 완료 후 보기 모드에서만 상태에 맞는 하단 액션이 다시 표시됨.
+3. 응답함 상세의 [감사 기록하기] 버튼에서 position/inset/transform 등 위치 속성을 강제 초기화.
+4. 감사 버튼을 입력창 아래의 독립된 한 줄 전체폭 버튼으로 강제 배치.
+5. Service Worker cache version: 1.0.88-answer-edit-flow-v3
+
+교체 파일
+- prayer.js
+- assets/app.css
+- service-worker.js

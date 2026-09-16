@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.82-detail-scroll-fix";
+const APP_VERSION = "1.0.83-detail-fixed-topbar";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

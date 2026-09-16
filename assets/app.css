@@ -1411,21 +1411,28 @@ body,
 }
 
 /* =========================================================
-   RC11: Detail screen fixed-layer layout
-   - Detail topbar is removed from the normal flex flow.
-   - Only #detail-scroll scrolls; the topbar never participates.
-   - List/archive compositor collapse rules remain unchanged.
+   RC12: Detail Visual Viewport shell
+   - On mobile/PWA, the whole app frame follows the visible viewport.
+   - The topbar stays outside the scrolling content.
+   - Only #detail-scroll is vertically scrollable in detail/edit.
+   - List/archive collapse behavior is intentionally untouched.
    ========================================================= */
 
-/* Desktop/card shell: pin detail topbar to the frame and place detail below it. */
+/* Detail layout inside the app shell: topbar and content are separate layers. */
 #frame.page-detail #topbar{
   position:absolute !important;
   top:0 !important;
   left:0 !important;
   right:0 !important;
-  z-index:120 !important;
-  transform:none !important;
+  width:100% !important;
+  height:48px !important;
+  min-height:48px !important;
+  max-height:48px !important;
+  z-index:220 !important;
   margin:0 !important;
+  transform:none !important;
+  backface-visibility:hidden !important;
+  -webkit-backface-visibility:hidden !important;
 }
 
 #frame.page-detail #view-detail{
@@ -1434,62 +1441,57 @@ body,
   left:0 !important;
   right:0 !important;
   bottom:0 !important;
-  min-height:0 !important;
+  width:100% !important;
   height:auto !important;
+  min-height:0 !important;
   overflow:hidden !important;
   margin:0 !important;
   transform:none !important;
+  background:#fff !important;
 }
 
 #frame.page-detail #detail-scroll{
-  flex:1 1 auto !important;
+  position:relative !important;
+  width:100% !important;
+  height:100% !important;
   min-height:0 !important;
-  overscroll-behavior:contain !important;
   overflow-y:auto !important;
   overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior-y:contain !important;
   touch-action:pan-y !important;
 }
 
-/* Installed/mobile layout: detach both layers from document scrolling entirely. */
+/*
+ * Android/PWA keyboard handling:
+ * position:fixed alone is not enough when the browser pans the Visual Viewport.
+ * JS writes --detail-vv-top / --detail-vv-height from visualViewport.
+ * Moving/resizing the entire shell keeps the topbar at the visible viewport top,
+ * while the detail content simply receives less vertical space.
+ */
 @media (display-mode: standalone), (max-width:640px){
-  #frame.page-detail #topbar{
-    position:fixed !important;
-    top:0 !important;
-    left:0 !important;
-    right:0 !important;
-    width:100vw !important;
-    height:48px !important;
-    min-height:48px !important;
-    max-height:48px !important;
-    z-index:220 !important;
-    transform:none !important;
-    backface-visibility:hidden !important;
-    -webkit-backface-visibility:hidden !important;
-  }
-
-  #frame.page-detail #view-detail{
-    position:fixed !important;
-    top:48px !important;
-    left:0 !important;
-    right:0 !important;
-    bottom:0 !important;
-    width:100vw !important;
-    height:auto !important;
-    min-height:0 !important;
-    z-index:20 !important;
-    background:#fff !important;
-    transform:none !important;
+  html,
+  body{
+    overflow:hidden !important;
     overscroll-behavior:none !important;
   }
 
-  #frame.page-detail #detail-scroll{
-    position:relative !important;
-    width:100% !important;
-    height:100% !important;
+  #frame.page-detail{
+    position:fixed !important;
+    top:var(--detail-vv-top, 0px) !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:auto !important;
+    width:100vw !important;
+    max-width:none !important;
+    height:var(--detail-vv-height, 100dvh) !important;
     min-height:0 !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    -webkit-overflow-scrolling:touch !important;
-    overscroll-behavior-y:contain !important;
+    max-height:none !important;
+    margin:0 !important;
+    overflow:hidden !important;
+    transform:none !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    contain:layout paint !important;
   }
 }

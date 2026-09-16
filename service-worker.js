@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.88-answer-edit-flow-v3";
+const APP_VERSION = "1.0.89-restore-scroll-top";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

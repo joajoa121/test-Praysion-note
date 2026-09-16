@@ -1,13 +1,14 @@
-Praysion Note - answer/edit flow v3
+Praysion Note - 응답함 복원 아이콘 + 저장 후 상단 이동
 
-수정 사항
-1. 상세 수정 모드(.detail-editing)에서는 하단 [응답완료]와 감사 입력 영역을 CSS에서도 강제로 숨김.
-2. 수정 저장 완료 후 보기 모드에서만 상태에 맞는 하단 액션이 다시 표시됨.
-3. 응답함 상세의 [감사 기록하기] 버튼에서 position/inset/transform 등 위치 속성을 강제 초기화.
-4. 감사 버튼을 입력창 아래의 독립된 한 줄 전체폭 버튼으로 강제 배치.
-5. Service Worker cache version: 1.0.88-answer-edit-flow-v3
+1. 응답함 상세페이지 탑바
+- 수정 아이콘 왼쪽에 '기도중으로 변경' 아이콘 버튼 추가
+- 기존 수정/삭제 버튼과 동일한 hdr-btn 규격 사용
+- 아이콘: Tabler Icons ti-arrow-back-up
+- 누르면 기존 복원 확인 후 기도중 상태로 변경하고 기도목록으로 이동
+- 수정 중에는 오작동 방지를 위해 복원 아이콘을 숨기고, 저장/취소 후 다시 표시
 
-교체 파일
-- prayer.js
-- assets/app.css
-- service-worker.js
+2. 상세 수정 저장 후 스크롤
+- 기도목록 상세와 응답함 상세 모두 저장 아이콘 클릭 후 저장 성공 시 #detail-scroll을 맨 위로 이동
+
+3. PWA 캐시
+- service-worker APP_VERSION: 1.0.89-restore-scroll-top

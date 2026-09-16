@@ -73,7 +73,10 @@ function setTopbarConfig(v){
     setFlexShown(backBtn, true);
     const p=AppState.prayers.find(x=>x.id===curPrayerId);
     if(p){
-      actions.innerHTML=`<button class="hdr-btn" id="edit-detail-btn" type="button" data-detail-toolbar-action="edit" aria-label="${uiT('editPrayerLabel')}"><i class="ti ti-pencil" aria-hidden="true"></i></button><button type="button" class="hdr-btn danger" data-detail-toolbar-action="delete" aria-label="${uiT('deletePrayerLabel')}"><i class="ti ti-trash" aria-hidden="true"></i></button>`;
+      const restoreButton=p.archived
+        ? `<button class="hdr-btn" id="restore-praying-btn" type="button" data-detail-toolbar-action="restore" aria-label="${uiT('restoreBtn')}"><i class="ti ti-arrow-back-up" aria-hidden="true"></i></button>`
+        : '';
+      actions.innerHTML=`${restoreButton}<button class="hdr-btn" id="edit-detail-btn" type="button" data-detail-toolbar-action="edit" aria-label="${uiT('editPrayerLabel')}"><i class="ti ti-pencil" aria-hidden="true"></i></button><button type="button" class="hdr-btn danger" data-detail-toolbar-action="delete" aria-label="${uiT('deletePrayerLabel')}"><i class="ti ti-trash" aria-hidden="true"></i></button>`;
     }
   }
 }
@@ -86,6 +89,7 @@ function bindDetailToolbarActions(){
     const button=event.target.closest('[data-detail-toolbar-action]');
     if(!button || !actions.contains(button)) return;
     const action=button.dataset.detailToolbarAction;
+    if(action==='restore') restoreToPraying();
     if(action==='edit') toggleDetailEdit(event);
     if(action==='delete') deleteCurPrayer();
   });

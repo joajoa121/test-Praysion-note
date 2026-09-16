@@ -769,6 +769,18 @@ function setEditPrayerSaveState(isSaving){
   button.disabled=_isSavingEditPrayer;
   button.setAttribute('aria-busy',String(_isSavingEditPrayer));
 }
+function setRestorePrayingButtonVisible(visible){
+  const button=document.getElementById('restore-praying-btn');
+  if(button) setHidden(button,!visible);
+}
+function scrollDetailToTop(){
+  const scroller=document.getElementById('detail-scroll');
+  if(!scroller) return;
+  requestAnimationFrame(()=>{
+    if(typeof scroller.scrollTo==='function') scroller.scrollTo({top:0,left:0,behavior:'auto'});
+    else scroller.scrollTop=0;
+  });
+}
 function ensureDetailActionDelegation(detailView){
   if(!detailView || detailView.dataset.detailActionsBound==='1') return;
   detailView.addEventListener('click',event=>{
@@ -821,6 +833,7 @@ function renderDetailFrame(p){
     setHidden(editBtn,false);
     setDetailEditButtonMode(editBtn,'edit');
   }
+  setRestorePrayingButtonVisible(!!p.archived);
   const detailUI=getDetailUI();
   const memoAddEl=detailUI.memoAdd;
   const answerActionEl=detailUI.answerAction;
@@ -1022,11 +1035,13 @@ async function toggleDetailEdit(event){
       if(memoAddEl) setHidden(memoAddEl, !p.archived);
       if(answerActionEl) setHidden(answerActionEl, !!p.archived);
       if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
+      setRestorePrayingButtonVisible(!!p.archived);
       setDetailEditButtonMode(btn,'edit');
       const p3=getCurrentDetailPrayer();
       if(catWrap&&p3) renderDetailCatRead(catWrap,p3);
       if(p3) renderMemos(p3);
       clearEditPrayerState();
+      scrollDetailToTop();
     } catch(error){
       console.error('저장 실패:', error);
       restoreEditPrayerSnapshot(p,prevSnapshot);
@@ -1057,6 +1072,7 @@ async function toggleDetailEdit(event){
     // 저장이 완료되어 보기 모드로 돌아온 뒤에만 상태에 맞는 하단 액션을 다시 표시한다.
     if(memoAddEl) setHidden(memoAddEl, true);
     if(answerActionEl) setHidden(answerActionEl, true);
+    setRestorePrayingButtonVisible(false);
     if(viewDetailEl) viewDetailEl.classList.add('detail-editing');
     renderMemos(source);
     setDetailEditButtonMode(btn,'save');
@@ -1093,6 +1109,7 @@ function resetDetailEditState(options={}){
   if(titleEl){ setEditableField(titleEl,false); }
   if(bodyEl){ setEditableField(bodyEl,false); }
   if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
+  setRestorePrayingButtonVisible(!!p?.archived);
   if(memoAddEl) setHidden(memoAddEl, !p?.archived);
   if(answerActionEl) setHidden(answerActionEl, !!p?.archived);
 

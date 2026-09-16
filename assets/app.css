@@ -1347,8 +1347,7 @@ body,
   background:#3a6248 !important;
 }
 
-#view-detail.archived-detail #answer-complete-wrap,
-#view-detail.detail-editing #answer-complete-wrap{
+#view-detail.archived-detail #answer-complete-wrap{
   display:none !important;
 }
 

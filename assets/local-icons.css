@@ -1,0 +1,38 @@
+/* Praysion Note icon compatibility layer.
+   The app keeps the original Tabler <i class="ti ti-*"> markup while
+   loading the pinned Tabler Icons webfont. */
+@import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css");
+
+.ti,
+[class^="ti-"],
+[class*=" ti-"]{
+  display:inline-block;
+  width:1em;
+  height:1em;
+  line-height:1;
+  font-family:"tabler-icons" !important;
+  font-style:normal;
+  font-weight:400 !important;
+  font-variant:normal;
+  text-transform:none;
+  speak:never;
+  vertical-align:-0.125em;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Language selector icons.
+   Keep both language marks in the same <i class="ti ..."> icon pipeline.
+   These two glyphs use the UI font because the Tabler webfont has no Korean letter icon. */
+.ti-lang-ko::before,
+.ti-lang-en::before{
+  display:inline-block;
+  width:1em;
+  text-align:center;
+  font-family:Pretendard,"Noto Sans KR",sans-serif !important;
+  font-size:.95em;
+  font-weight:600;
+  line-height:1;
+}
+.ti-lang-ko::before{content:"ㄱ";}
+.ti-lang-en::before{content:"A";}

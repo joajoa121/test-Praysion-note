@@ -370,17 +370,11 @@ function bindSingleLineInputGuards(){
 }
 
 
-// Samsung Internet keyboard/viewport scroll guard
+// Samsung Internet keyboard/viewport handling
 // ============================================================
-// Problem: on Android, focusing ANY <textarea>/<input> (typing, tapping the
-// on-screen keyboard, moving the caret) can make the browser scroll the
-// document itself to "keep the focused field visible" — even though #frame
-// has overflow:hidden and every internal panel scrolls on its own.
-// view-new already has its own keyboard-offset handling (RC7F/RC7H) which
-// happens to mask this, but view-detail (and view-cat) have no such
-// correction, so the whole #frame (topbar included) gets shoved upward.
-// This guard neutralizes that native shift for every view, generically,
-// instead of patching each page one at a time.
+// Detail/edit uses a Visual Viewport shell: #frame follows the actually visible
+// viewport and only #detail-scroll scrolls. Other screens keep the legacy
+// window-scroll recovery guard because they do not use this shell.
 function initGlobalKeyboardScrollGuard(){
   if(window.__kbScrollGuardBound) return;
   window.__kbScrollGuardBound=true;
@@ -405,11 +399,41 @@ function initGlobalKeyboardScrollGuard(){
     ].includes((el.type||'text').toLowerCase());
   }
 
+  function syncDetailVisualViewport(){
+    const frame=document.getElementById('frame');
+    if(!frame) return;
+
+    if(!frame.classList.contains('page-detail')){
+      frame.style.removeProperty('--detail-vv-top');
+      frame.style.removeProperty('--detail-vv-height');
+      return;
+    }
+
+    const vv=window.visualViewport;
+    const top=vv ? Math.max(0, Math.round(vv.offsetTop)) : 0;
+    const height=vv ? Math.max(1, Math.round(vv.height)) : Math.max(1, window.innerHeight);
+
+    frame.style.setProperty('--detail-vv-top', top+'px');
+    frame.style.setProperty('--detail-vv-height', height+'px');
+
+    const topbar=document.getElementById('topbar');
+    if(topbar){
+      topbar.classList.add('visible');
+      topbar.style.setProperty('display','flex','important');
+      topbar.style.setProperty('transform','none','important');
+    }
+  }
+
   function restoreAppViewport(){
     if(!guarding) return;
 
     const frame=document.getElementById('frame');
-    const topbar=document.getElementById('topbar');
+
+    // Detail/edit deliberately follows VisualViewport instead of fighting it.
+    if(frame?.classList.contains('page-detail')){
+      syncDetailVisualViewport();
+      return;
+    }
 
     if(window.scrollX!==0 || window.scrollY!==0){
       window.scrollTo(0,0);
@@ -419,12 +443,6 @@ function initGlobalKeyboardScrollGuard(){
       frame.style.setProperty('top','0px','important');
       frame.style.setProperty('left','0px','important');
       frame.style.setProperty('transform','none','important');
-    }
-
-    if(frame?.classList.contains('page-detail') && topbar){
-      topbar.classList.add('visible');
-      topbar.style.setProperty('display','flex','important');
-      topbar.style.setProperty('transform','none','important');
     }
   }
 
@@ -450,12 +468,14 @@ function initGlobalKeyboardScrollGuard(){
         cancelAnimationFrame(guardRaf);
         guardRaf=0;
       }
+      syncDetailVisualViewport();
     });
   }
 
   document.addEventListener('focusin',event=>{
     if(!isTextEntryElement(event.target)) return;
     startGuard();
+    syncDetailVisualViewport();
   },true);
 
   document.addEventListener('focusout',event=>{
@@ -481,12 +501,26 @@ function initGlobalKeyboardScrollGuard(){
   });
 
   window.addEventListener('scroll',restoreAppViewport,{passive:true});
-  window.addEventListener('resize',restoreAppViewport);
+  window.addEventListener('resize',()=>{
+    syncDetailVisualViewport();
+    restoreAppViewport();
+  });
 
   if(window.visualViewport){
-    window.visualViewport.addEventListener('resize',restoreAppViewport);
-    window.visualViewport.addEventListener('scroll',restoreAppViewport);
+    window.visualViewport.addEventListener('resize',syncDetailVisualViewport);
+    window.visualViewport.addEventListener('scroll',syncDetailVisualViewport);
   }
+
+  // showView() changes page-* classes on #frame. Sync immediately when detail
+  // becomes active, even before a keyboard/viewport event occurs.
+  const frame=document.getElementById('frame');
+  if(frame){
+    new MutationObserver(syncDetailVisualViewport).observe(frame,{
+      attributes:true,
+      attributeFilter:['class']
+    });
+  }
+  syncDetailVisualViewport();
 }
 
 

@@ -1,18 +1,20 @@
-Praysion Note - Detail fixed topbar test
+Praysion Note - Visual Viewport shell test
 
-Changed files only:
+수정 파일
+- bootstrap.js
 - assets/app.css
 - service-worker.js
 
-What changed
-1. Detail page TopBar is removed from normal flex/scroll flow.
-2. On mobile/PWA, detail TopBar uses position:fixed at the viewport top.
-3. Detail view becomes a separate fixed layer starting at 48px below the TopBar.
-4. Only #detail-scroll scrolls inside that layer.
-5. Existing list/archive TopBar collapse and anti-jitter rules are kept.
-6. Existing keyboard/viewport guard JavaScript is kept unchanged as a fallback.
-7. Service worker cache version: 1.0.83-detail-fixed-topbar
+핵심 변경
+1. 상세/수정 화면에서 #frame 전체가 visualViewport.offsetTop / height를 따라가도록 변경
+2. topbar는 #frame 내부 고정 레이어, #view-detail은 그 아래 독립 레이어로 분리
+3. 실제 세로 스크롤은 #detail-scroll 하나만 담당
+4. 상세 화면에서는 기존 window.scrollTo(0,0) 강제 복구와 충돌하지 않도록 분기
+5. 목록/응답함의 기존 탑바 collapse / 흔들림 방지 로직은 유지
+6. Service Worker 버전: 1.0.84-visual-viewport-shell
 
-Test especially:
-- Open prayer detail -> Edit -> focus title/body -> keyboard open -> scroll content.
-- TopBar should remain at the top while content scrolls below it.
+테스트 포인트
+- 모바일/PWA: 상세 -> 수정 -> 제목/본문 포커스 -> 키보드 열린 상태에서 스크롤
+- 탑바가 visible viewport 최상단에 고정되는지
+- 본문만 #detail-scroll 안에서 움직이는지
+- 목록/응답함의 기존 탑바 접힘 동작이 그대로인지

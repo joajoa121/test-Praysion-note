@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.80-answer-flow-css";
+const APP_VERSION = "1.0.81-pin-fix";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

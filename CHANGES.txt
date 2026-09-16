@@ -1,20 +1,20 @@
-Praysion Note - 응답완료 / 감사 기록 흐름 테스트본 (CSS 반영)
+Praysion Note - answer flow + PIN fix
 
-변경 내용
-1. 기도중 상세 하단: [응답완료] 버튼 하나만 표시
-2. [응답완료] 클릭: 해당 기도제목을 응답함 상태로 저장
-3. 응답 처리 후: 상세 페이지를 닫지 않고 같은 상세 화면 유지
-4. 응답함 상세 하단: 감사 기록 전용 입력 카드 표시
-5. [감사 기록하기] 버튼: 입력 카드 오른쪽 아래 내부에 배치
-6. 감사 기록 저장 후: 상세 화면 유지 + 감사 기록 목록 즉시 갱신
-7. 기존 [기도중으로 변경] 하단 버튼은 새 흐름에서 숨김
-8. service-worker 캐시 버전: 1.0.80-answer-flow-css
-
-교체 파일
+Changed files only:
 - index.html
 - prayer.js
 - settings.js
+- bootstrap.js
 - service-worker.js
 - assets/app.css
 
-테스트 시 기존 PWA가 설치되어 있다면 새 서비스워커 적용 후 새로고침하거나 앱을 완전히 종료 후 다시 실행해 주세요.
+PIN fix:
+- Removed an invalid HTML <script> tag that was embedded inside bootstrap.js.
+- bootstrap.js contains the click/keyboard event binding for the PIN keypad, so the syntax error prevented PIN input from working.
+- Service worker cache version bumped to 1.0.81-pin-fix.
+
+After upload:
+1. Replace these files in the same paths in the GitHub repository.
+2. Wait for GitHub Pages deployment to finish.
+3. Close the installed PWA completely and reopen it.
+4. If the old version persists, remove the installed PWA/site data once and reinstall from the updated Pages site.

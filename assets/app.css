@@ -1490,3 +1490,58 @@ body,
     contain:layout paint !important;
   }
 }
+
+/* =========================================================
+   RC13: detail bottom action state hardening
+   - Editing mode: no bottom action is visible.
+   - Answered detail: gratitude submit is one full-width row.
+   ========================================================= */
+
+/* JS also toggles visibility, but the edit-state class is the source of truth. */
+#view-detail.detail-editing #answer-complete-wrap,
+#view-detail.detail-editing #memo-add-area{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+/* Restore normal interaction as soon as edit mode ends. */
+#view-detail:not(.detail-editing) #answer-complete-wrap,
+#view-detail:not(.detail-editing).archived-detail #memo-add-area{
+  visibility:visible;
+  pointer-events:auto;
+}
+
+/* Gratitude action: always a separate, full-width row below the textarea. */
+#view-detail.archived-detail:not(.detail-editing) #memo-add-area > div{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+}
+
+#view-detail.archived-detail:not(.detail-editing) .memo-add-actions{
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:8px 10px 10px !important;
+  box-sizing:border-box !important;
+}
+
+#view-detail.archived-detail:not(.detail-editing) .memo-add-actions .memo-add-btn.thanks{
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  display:flex !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  flex:none !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  justify-self:stretch !important;
+}

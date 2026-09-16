@@ -1019,7 +1019,8 @@ async function toggleDetailEdit(event){
 
       setEditableField(titleEl,false);
       if(bodyEl){ setEditableField(bodyEl,false); }
-      if(memoAddEl) setHidden(memoAddEl, !!p.archived);
+      if(memoAddEl) setHidden(memoAddEl, !p.archived);
+      if(answerActionEl) setHidden(answerActionEl, !!p.archived);
       if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
       setDetailEditButtonMode(btn,'edit');
       const p3=getCurrentDetailPrayer();
@@ -1053,7 +1054,7 @@ async function toggleDetailEdit(event){
       }
     });
     if(memoAddEl) setHidden(memoAddEl, true);
-    if(answerActionEl) setHidden(answerActionEl, true);
+    if(answerActionEl) setHidden(answerActionEl, !!source.archived);
     if(viewDetailEl) viewDetailEl.classList.add('detail-editing');
     renderMemos(source);
     setDetailEditButtonMode(btn,'save');
@@ -1208,7 +1209,28 @@ async function markPrayerAnswered(){
     const p=getCurrentDetailPrayer();
     if(!p || p.archived) return;
 
-    if(isUncategorizedPrayer(p)){
+    const wasEditing=isDetailEditMode();
+    const prevSnapshot=createEditPrayerSnapshot(p);
+    let validatedDraft=null;
+
+    // 수정 중 [응답완료]를 눌러도 현재 작성 중인 제목/본문/카테고리를 잃지 않는다.
+    if(wasEditing){
+      const draft=getEditPrayerDraft();
+
+      if(CategoryService.isUncategorized(draft.category)){
+        const selectedCat=await showCategorySelectModal();
+        if(!selectedCat) return;
+        draft.category=CategoryService.normalize(selectedCat);
+      }
+
+      validatedDraft=await validateEditPrayerDraft(draft,{
+        prayerId:p.id,
+        titleEl:getDetailUI().title
+      });
+      if(!validatedDraft) return;
+
+      applyEditPrayerDraft(p,validatedDraft);
+    }else if(isUncategorizedPrayer(p)){
       const selectedCat=await showCategorySelectModal();
       if(!selectedCat) return;
       p.cat=CategoryService.normalize(selectedCat);
@@ -1216,13 +1238,17 @@ async function markPrayerAnswered(){
 
     p.archived=true;
     resetMemoComposer();
+
     if(!saveData()){
       p.archived=false;
+      if(wasEditing) restoreEditPrayerSnapshot(p,prevSnapshot);
       await refreshSlides();
       return;
     }
 
-    // 응답함으로 상태를 옮기되, 사용자는 현재 상세 페이지에 그대로 머뭅니다.
+    // 응답함으로 상태를 옮기되, 사용자는 같은 상세 페이지에 머문다.
+    clearEditPrayerState();
+    setEditPrayerSaveState(false);
     setDetailReturnView('archive');
     await refreshSlides();
     renderArchive({preserveState:false});

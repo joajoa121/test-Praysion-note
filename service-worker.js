@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.89-restore-scroll-top";
+const APP_VERSION = "1.0.90-delete-return-fix";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

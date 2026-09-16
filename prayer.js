@@ -1140,7 +1140,8 @@ async function deleteCurPrayer(){
   AppState.prayers=AppState.prayers.filter(x=>x.id!==curPrayerId);
   if(!saveData()){ await refreshSlides(); return; }
   await refreshSlides();
-  goList();
+  const returnView=(typeof detailReturnView!=='undefined' && detailReturnView==='archive') ? 'archive' : 'list';
+  showView(returnView, false);
 }
 
 // ── 메모 ──

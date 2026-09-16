@@ -1316,15 +1316,6 @@ body,
   padding-right:var(--prayer-editor-inline);
 }
 
-/* Samsung Internet detail textarea resize A/B test */
-#view-detail.detail-editing #detail-body-input{
-  min-height:180px !important;
-  height:40vh !important;
-  max-height:40vh !important;
-  overflow-y:auto !important;
-  -webkit-overflow-scrolling:auto !important;
-}
-
 /* =========================================================
    Answer flow UI: 응답완료 → 응답함 상세 → 감사 기록
    ========================================================= */

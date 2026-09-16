@@ -126,15 +126,14 @@
     </div>
     <div id="memo-add-area">
       <div>
-        <textarea id="memo-add-ta" placeholder="메모나 응답에 대한 감사를 남겨보세요." data-i18n-placeholder="memoPH" rows="1"></textarea>
+        <textarea id="memo-add-ta" placeholder="감사 내용을 기록해보세요." data-i18n-placeholder="thanksPH" rows="1"></textarea>
         <div class="memo-add-actions">
-          <button class="memo-add-btn record" type="button" data-detail-action="add-memo">메모</button>
-          <button class="memo-add-btn thanks" type="button" data-detail-action="respond-thanks">응답 및 감사</button>
+          <button class="memo-add-btn thanks" type="button" data-detail-action="add-thanks" data-i18n="gratitudeRecord">감사 기록하기</button>
         </div>
       </div>
     </div>
-    <div id="restore-btn-wrap" class="restore-btn-wrap">
-      <button class="restore-btn" type="button" data-detail-action="restore"><i class="ti ti-refresh" aria-hidden="true"></i> <span data-i18n="restoreBtn">복원</span></button>
+    <div id="answer-complete-wrap" class="restore-btn-wrap">
+      <button class="restore-btn" type="button" data-detail-action="mark-answered" data-i18n="answerComplete">응답완료</button>
     </div>
   </div>
 
@@ -259,5 +258,7 @@
 <script src="./category.js"></script>
 <script src="./backup.js"></script>
 <script src="./bootstrap.js"></script>
+
+<script src="./debug-topbar.js"></script>  
 </body></html>
 

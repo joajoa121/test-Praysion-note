@@ -15,6 +15,7 @@ function getDetailUI(){
     category:document.getElementById('detail-cat-wrap'),
     createdAt:document.getElementById('detail-created-at'),
     memoAdd:document.getElementById('memo-add-area'),
+    answerAction:document.getElementById('answer-complete-wrap'),
     memoList:document.getElementById('memo-list')
   };
   if(Object.values(ui).some(el=>!el)) return ui;
@@ -29,6 +30,7 @@ function getEditPrayerUI(){
     body:detailUI.body,
     category:detailUI.category,
     memoAdd:detailUI.memoAdd,
+    answerAction:detailUI.answerAction,
     saveButton:document.getElementById('edit-detail-btn')
   };
 }
@@ -774,8 +776,8 @@ function ensureDetailActionDelegation(detailView){
     if(!actionEl || !detailView.contains(actionEl)) return;
     const action=actionEl.dataset.detailAction;
     if(action==='restore') restoreToPraying();
-    if(action==='add-memo') addMemo('record');
-    if(action==='respond-thanks') handleRespondAndThank();
+    if(action==='mark-answered') markPrayerAnswered();
+    if(action==='add-thanks') addThanksRecord();
   });
   detailView.addEventListener('input',event=>{
     const field=event.target;
@@ -818,8 +820,13 @@ function renderDetailFrame(p){
     setHidden(editBtn,false);
     setDetailEditButtonMode(editBtn,'edit');
   }
-  const memoAddEl=getDetailUI().memoAdd;
-  if(memoAddEl) setHidden(memoAddEl,!!p.archived);
+  const detailUI=getDetailUI();
+  const memoAddEl=detailUI.memoAdd;
+  const answerActionEl=detailUI.answerAction;
+  if(memoAddEl) setHidden(memoAddEl,!p.archived);
+  if(answerActionEl) setHidden(answerActionEl,!!p.archived);
+  const memoTextarea=document.getElementById('memo-add-ta');
+  if(memoTextarea) memoTextarea.setAttribute('placeholder',uiT('thanksPH'));
   return detailView;
 }
 function renderDetailHeader(p){
@@ -973,6 +980,7 @@ async function toggleDetailEdit(event){
     body:bodyEl,
     saveButton:btn,
     memoAdd:memoAddEl,
+    answerAction:answerActionEl,
     view:viewDetailEl,
     category:catWrap
   }=getEditPrayerUI();
@@ -1044,6 +1052,7 @@ async function toggleDetailEdit(event){
       }
     });
     if(memoAddEl) setHidden(memoAddEl, true);
+    if(answerActionEl) setHidden(answerActionEl, true);
     if(viewDetailEl) viewDetailEl.classList.add('detail-editing');
     renderMemos(source);
     setDetailEditButtonMode(btn,'save');
@@ -1060,6 +1069,7 @@ function resetDetailEditState(options={}){
     body:bodyEl,
     saveButton:btn,
     memoAdd:memoAddEl,
+    answerAction:answerActionEl,
     view:viewDetailEl,
     category:catWrap
   }=getEditPrayerUI();
@@ -1079,7 +1089,8 @@ function resetDetailEditState(options={}){
   if(titleEl){ setEditableField(titleEl,false); }
   if(bodyEl){ setEditableField(bodyEl,false); }
   if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
-  if(memoAddEl) setHidden(memoAddEl, !!p?.archived);
+  if(memoAddEl) setHidden(memoAddEl, !p?.archived);
+  if(answerActionEl) setHidden(answerActionEl, !!p?.archived);
 
   if(catWrap && p) renderDetailCatRead(catWrap,p);
   if(p) renderMemos(p);
@@ -1191,10 +1202,10 @@ function showCategorySelectModal(){
   });
 }
 
-async function handleRespondAndThank(){
+async function markPrayerAnswered(){
   try{
     const p=getCurrentDetailPrayer();
-    if(!p) return;
+    if(!p || p.archived) return;
 
     if(isUncategorizedPrayer(p)){
       const selectedCat=await showCategorySelectModal();
@@ -1202,23 +1213,45 @@ async function handleRespondAndThank(){
       p.cat=CategoryService.normalize(selectedCat);
     }
 
-    await addThanks();
+    p.archived=true;
+    resetMemoComposer();
+    if(!saveData()){
+      p.archived=false;
+      await refreshSlides();
+      return;
+    }
+
+    // 응답함으로 상태를 옮기되, 사용자는 현재 상세 페이지에 그대로 머뭅니다.
+    setDetailReturnView('archive');
+    await refreshSlides();
+    renderArchive({preserveState:false});
+    renderDetail();
+    refreshLocalizedUI();
   }catch(error){
     console.error('응답 처리 중 오류 발생:', error);
     await showAlert(popupT('answerProcessFailed'));
   }
 }
 
-async function addThanks(){
-  const p=getCurrentDetailPrayer(); if(!p) return;
+async function addThanksRecord(){
+  const p=getCurrentDetailPrayer();
+  if(!p || !p.archived) return;
   const ta=document.getElementById('memo-add-ta');
   const text=ta?.value.trim();
-  if(text){ const m={id:nextMemoId++,text,type:'thanks',date:nowAppDateTime()}; p.memos.push(m); }
+  if(!text) return;
+
+  const m={id:nextMemoId++,text,type:'thanks',date:nowAppDateTime()};
+  p.memos.push(m);
+  if(!saveData()){
+    p.memos=p.memos.filter(item=>item.id!==m.id);
+    await refreshSlides();
+    return;
+  }
+
   resetMemoComposer();
-  p.archived=true;
-  if(!saveData()){ await refreshSlides(); return; }
-  await refreshSlides(); goList();
-  setTimeout(()=>goArchive(),100);
+  renderMemos(p);
+  refreshArchiveSlides();
+  refreshLocalizedUI();
 }
 function editMemo(mid){
   if(isDetailEditMode()) return;

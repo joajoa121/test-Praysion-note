@@ -1317,46 +1317,9 @@ body,
 }
 
 /* =========================================================
-   Answer flow UI: 응답완료 → 응답함 상세 → 감사 기록
+   Detail memo composer: answered detail gratitude record
    ========================================================= */
 
-/* 기도중 상세의 단일 [응답완료] 하단 액션 */
-#answer-complete-wrap{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:0 !important;
-  z-index:35 !important;
-  padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
-  background:transparent !important;
-  box-shadow:none !important;
-}
-
-#answer-complete-wrap .restore-btn{
-  width:100% !important;
-  height:44px !important;
-  min-height:44px !important;
-  border:none !important;
-  border-radius:12px !important;
-  background:#4a7c59 !important;
-  color:#fff !important;
-  box-shadow:0 -2px 10px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.10) !important;
-}
-
-#answer-complete-wrap .restore-btn:active{
-  background:#3a6248 !important;
-}
-
-#view-detail.archived-detail #answer-complete-wrap{
-  display:none !important;
-}
-
-/* 기도중 상세는 단일 하단 버튼만큼만 스크롤 여백 확보 */
-#view-detail:not(.archived-detail) #detail-scroll{
-  padding-bottom:calc(100px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-/* 응답함 상세의 감사 작성 카드 */
 #view-detail.archived-detail #memo-add-area{
   display:flex;
 }
@@ -1373,7 +1336,6 @@ body,
   line-height:1.6 !important;
 }
 
-/* 응답함 상세의 [감사 기록하기]는 입력창 아래 한 줄 전체폭 버튼으로 표시 */
 #view-detail.archived-detail .memo-add-actions{
   position:static !important;
   display:flex !important;
@@ -1400,7 +1362,6 @@ body,
   scroll-padding-bottom:calc(190px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
-/* 기존 응답함 복원 버튼 레이아웃은 새 흐름에서 사용하지 않음 */
 #restore-btn-wrap{
   display:none !important;
 }
@@ -1498,7 +1459,6 @@ body,
    ========================================================= */
 
 /* JS also toggles visibility, but the edit-state class is the source of truth. */
-#view-detail.detail-editing #answer-complete-wrap,
 #view-detail.detail-editing #memo-add-area{
   display:none !important;
   visibility:hidden !important;
@@ -1506,7 +1466,6 @@ body,
 }
 
 /* Restore normal interaction as soon as edit mode ends. */
-#view-detail:not(.detail-editing) #answer-complete-wrap,
 #view-detail:not(.detail-editing).archived-detail #memo-add-area{
   visibility:visible;
   pointer-events:auto;
@@ -1551,10 +1510,10 @@ body,
    RC14: Praying detail process-note composer + nav refinements
    ========================================================= */
 
-/* 기도중 상세에서도 메모 입력 카드를 노출하되 응답완료 버튼 위에 둔다. */
+/* 기도중 상세의 과정 기록 입력 카드를 응답함의 감사 입력 카드와 같은 하단 위치에 둔다. */
 #view-detail:not(.archived-detail):not(.detail-editing) #memo-add-area{
   display:flex !important;
-  bottom:calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+  bottom:0 !important;
 }
 
 #view-detail:not(.archived-detail):not(.detail-editing) #memo-add-area > div{
@@ -1609,8 +1568,8 @@ body,
   border-color:#4a7c59 !important;
 }
 
-/* 과정 입력 카드 + 응답완료 버튼 두 영역만큼 스크롤 여백 확보 */
+/* 과정 입력 카드 높이만큼 스크롤 여백 확보 */
 #view-detail:not(.archived-detail) #detail-scroll{
-  padding-bottom:calc(255px + env(safe-area-inset-bottom, 0px)) !important;
-  scroll-padding-bottom:calc(255px + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom:calc(190px + env(safe-area-inset-bottom, 0px)) !important;
+  scroll-padding-bottom:calc(190px + env(safe-area-inset-bottom, 0px)) !important;
 }

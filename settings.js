@@ -13,8 +13,8 @@ function updateLangChecks(lang){
 const UI_LANG={
   ko:{
     search:'제목 및 내용 검색', newTitle:'기도제목을 입력하세요.', newBody:'기도내용을 자유롭게 입력하세요.',
-    memoPH:'메모나 응답에 대한 감사를 남겨보세요.', thanksPH:'감사 내용을 기록해보세요.', newCat:'새 카테고리 추가',
-    app:'기도목록', navList:'기도목록', navArchive:'응답함', navSettings:'설정',
+    memoPH:'메모나 응답에 대한 감사를 남겨보세요.', processPH:'기도 과정과 마음을 기록해보세요.', thanksPH:'감사 내용을 기록해보세요.', newCat:'새 카테고리 추가',
+    app:'기도목록', navList:'기도함', navArchive:'응답함', navSettings:'설정',
     newPrayer:'새 기도제목', archive:'응답함', catManage:'카테고리 관리', backup:'백업 및 가져오기',
     security:'보안 설정', appLock:'앱 잠금', lockOn:'잠금 활성화', lockOff:'잠금 비활성화',
     changePin:'비밀번호 변경', catSettings:'카테고리 설정', langSettings:'언어 설정',
@@ -25,7 +25,7 @@ const UI_LANG={
     pinBackLabel:'설정 화면으로 돌아가기', pinDeleteLabel:'마지막 숫자 삭제', pinKeypadLabel:'PIN 키패드',
     backupSettings:'백업 설정',
     all:'전체', uncategorized:'미분류', answered:'응답', restoreBtn:'기도중으로 변경', restoreConfirm:'을 기도중으로 변경할까요?',
-    memo:'메모', mark:'응답 및 감사', answerComplete:'응답완료', gratitudeRecord:'감사 기록하기', add:'등록',
+    memo:'메모', mark:'응답 및 감사', answerComplete:'응답완료', processRecord:'과정 기록하기', gratitudeRecord:'감사 기록하기', add:'등록',
     untitled:'제목 없음', prayerTitleRequired:'기도제목을 입력해주세요.', prayerTitleTooLong:'기도제목은 80자 이내로 입력해주세요.', meaningfulPrayerTitle:'의미 있는 기도제목을 입력해주세요.',
     categoryTooLong:'카테고리 이름은 20자 이내로 입력해주세요.', meaningfulCategoryName:'의미 있는 카테고리 이름을 입력해주세요.',
     backLabel:'뒤로가기', newPrayerSubmitLabel:'새 기도제목 등록', addCategoryLabel:'카테고리 추가', editPrayerLabel:'기도 수정', savePrayerLabel:'기도 저장', deletePrayerLabel:'기도 삭제', editMemoLabel:'메모 수정', deleteMemoLabel:'메모 삭제', cancelMemoEditLabel:'메모 수정 취소', saveMemoEditLabel:'메모 저장', editCategoryLabel:'카테고리 수정', deleteCategoryLabel:'카테고리 삭제',
@@ -40,8 +40,8 @@ const UI_LANG={
   },
   en:{
     search:'Search title and content', newTitle:'Enter a prayer title.', newBody:'Write your prayer freely.',
-    memoPH:'Leave a memo or a note of gratitude for an answered prayer.', thanksPH:'Write a note of gratitude.', newCat:'Add new category',
-    app:'Prayers', navList:'Prayers', navArchive:'Answered', navSettings:'Settings',
+    memoPH:'Leave a memo or a note of gratitude for an answered prayer.', processPH:'Record the prayer journey and what is happening.', thanksPH:'Write a note of gratitude.', newCat:'Add new category',
+    app:'Prayers', navList:'Prayer Box', navArchive:'Answered', navSettings:'Settings',
     newPrayer:'New Prayer', archive:'Answered', catManage:'Manage Categories', backup:'Backup & Import',
     security:'Security', appLock:'App Lock', lockOn:'Lock On', lockOff:'Lock Off',
     changePin:'Change PIN', catSettings:'Categories', langSettings:'Language',
@@ -52,7 +52,7 @@ const UI_LANG={
     pinBackLabel:'Return to settings', pinDeleteLabel:'Delete last digit', pinKeypadLabel:'PIN keypad',
     backupSettings:'Backup',
     all:'All', uncategorized:'Uncategorized', answered:'Answered', restoreBtn:'Move to Praying', restoreConfirm:'will be moved back to praying.',
-    memo:'Memo', mark:'Mark Answered', answerComplete:'Mark Answered', gratitudeRecord:'Record Gratitude', add:'Add',
+    memo:'Memo', mark:'Mark Answered', answerComplete:'Mark Answered', processRecord:'Record Journey', gratitudeRecord:'Record Gratitude', add:'Add',
     untitled:'Untitled', prayerTitleRequired:'Please enter a prayer title.', prayerTitleTooLong:'Prayer titles must be 80 characters or fewer.', meaningfulPrayerTitle:'Please enter a meaningful prayer title.',
     categoryTooLong:'Category names must be 20 characters or fewer.', meaningfulCategoryName:'Please enter a meaningful category name.',
     backLabel:'Back', newPrayerSubmitLabel:'Add new prayer', addCategoryLabel:'Add category', editPrayerLabel:'Edit prayer', savePrayerLabel:'Save prayer', deletePrayerLabel:'Delete prayer', editMemoLabel:'Edit memo', deleteMemoLabel:'Delete memo', cancelMemoEditLabel:'Cancel memo edit', saveMemoEditLabel:'Save memo', editCategoryLabel:'Edit category', deleteCategoryLabel:'Delete category',
@@ -207,6 +207,7 @@ function refreshLocalizedUI(){
   if(_activeTopbarView){ setTopbarConfig(_activeTopbarView); }
 
   document.querySelectorAll('.memo-add-btn.record').forEach(e=>e.textContent=uiT('memo'));
+  document.querySelectorAll('.memo-add-btn.process').forEach(e=>e.textContent=uiT('processRecord'));
   document.querySelectorAll('.memo-add-btn.thanks').forEach(e=>e.textContent=uiT('gratitudeRecord'));
   document.querySelectorAll('.archived-tag').forEach(e=>e.textContent=uiT('answered'));
   document.querySelectorAll('.restore-btn').forEach(e=>{

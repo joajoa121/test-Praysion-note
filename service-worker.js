@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.90-delete-return-fix";
+const APP_VERSION = "1.0.91-process-note-nav";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

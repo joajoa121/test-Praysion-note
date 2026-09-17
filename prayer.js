@@ -789,6 +789,7 @@ function ensureDetailActionDelegation(detailView){
     const action=actionEl.dataset.detailAction;
     if(action==='restore') restoreToPraying();
     if(action==='mark-answered') markPrayerAnswered();
+    if(action==='add-record') addMemo('record');
     if(action==='add-thanks') addThanksRecord();
   });
   detailView.addEventListener('input',event=>{
@@ -821,6 +822,23 @@ function ensureMemoActionDelegation(memoList){
   });
   memoList.dataset.memoActionsBound='1';
 }
+function configureDetailMemoComposer(p){
+  const area=document.getElementById('memo-add-area');
+  const ta=document.getElementById('memo-add-ta');
+  const button=area?.querySelector('.memo-add-btn');
+  if(!p || !area || !ta || !button) return;
+
+  const answered=!!p.archived;
+  ta.setAttribute('placeholder',answered?uiT('thanksPH'):uiT('processPH'));
+  ta.setAttribute('data-i18n-placeholder',answered?'thanksPH':'processPH');
+
+  button.classList.toggle('thanks',answered);
+  button.classList.toggle('process',!answered);
+  button.classList.remove('record');
+  button.dataset.detailAction=answered?'add-thanks':'add-record';
+  button.setAttribute('data-i18n',answered?'gratitudeRecord':'processRecord');
+  button.textContent=answered?uiT('gratitudeRecord'):uiT('processRecord');
+}
 function renderDetailFrame(p){
   const detailView=getDetailUI().view;
   if(!detailView) return null;
@@ -837,10 +855,9 @@ function renderDetailFrame(p){
   const detailUI=getDetailUI();
   const memoAddEl=detailUI.memoAdd;
   const answerActionEl=detailUI.answerAction;
-  if(memoAddEl) setHidden(memoAddEl,!p.archived);
+  if(memoAddEl) setHidden(memoAddEl,false);
   if(answerActionEl) setHidden(answerActionEl,!!p.archived);
-  const memoTextarea=document.getElementById('memo-add-ta');
-  if(memoTextarea) memoTextarea.setAttribute('placeholder',uiT('thanksPH'));
+  configureDetailMemoComposer(p);
   return detailView;
 }
 function renderDetailHeader(p){
@@ -1032,8 +1049,9 @@ async function toggleDetailEdit(event){
 
       setEditableField(titleEl,false);
       if(bodyEl){ setEditableField(bodyEl,false); }
-      if(memoAddEl) setHidden(memoAddEl, !p.archived);
+      if(memoAddEl) setHidden(memoAddEl, false);
       if(answerActionEl) setHidden(answerActionEl, !!p.archived);
+      configureDetailMemoComposer(p);
       if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
       setRestorePrayingButtonVisible(!!p.archived);
       setDetailEditButtonMode(btn,'edit');
@@ -1110,8 +1128,9 @@ function resetDetailEditState(options={}){
   if(bodyEl){ setEditableField(bodyEl,false); }
   if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
   setRestorePrayingButtonVisible(!!p?.archived);
-  if(memoAddEl) setHidden(memoAddEl, !p?.archived);
+  if(memoAddEl) setHidden(memoAddEl, !p);
   if(answerActionEl) setHidden(answerActionEl, !!p?.archived);
+  if(p) configureDetailMemoComposer(p);
 
   if(catWrap && p) renderDetailCatRead(catWrap,p);
   if(p) renderMemos(p);

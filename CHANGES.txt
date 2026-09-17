@@ -1,9 +1,17 @@
-Praysion Note - delete return fix
+Praysion Note 1.0.91-process-note-nav
 
-Changed files only:
+Changed files only.
+
 - prayer.js
-  - After deleting a prayer from detail, return to the originating page.
-  - Detail opened from Answered returns to Answered.
-  - Detail opened from Prayer List returns to Prayer List.
+  - Active/praying detail now shows a process-note composer.
+  - The same composer switches to gratitude mode after the prayer is marked answered.
+  - Process notes are saved as normal record memos.
+- assets/app.css
+  - Process-note button uses the same pale-green/bordered palette as category chips.
+  - Active detail reserves space for both the process composer and Answer Complete button.
+- settings.js
+  - Added process-note translations and changed bottom nav label from 기도목록 to 기도함.
+- index.html
+  - Changed answered-tab icon to a heart icon and fallback label to 기도함.
 - service-worker.js
-  - Cache/version bumped to 1.0.90-delete-return-fix.
+  - Cache version: 1.0.91-process-note-nav.

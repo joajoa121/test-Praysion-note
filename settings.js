@@ -25,7 +25,7 @@ const UI_LANG={
     pinBackLabel:'설정 화면으로 돌아가기', pinDeleteLabel:'마지막 숫자 삭제', pinKeypadLabel:'PIN 키패드',
     backupSettings:'백업 설정',
     all:'전체', uncategorized:'미분류', answered:'응답', restoreBtn:'기도중으로 변경', restoreConfirm:'을 기도중으로 변경할까요?',
-    memo:'메모', mark:'응답 및 감사', answerComplete:'응답완료', processRecord:'과정 기록하기', gratitudeRecord:'감사 기록하기', add:'등록',
+    memo:'메모', mark:'응답 및 감사', processRecord:'과정 기록하기', gratitudeRecord:'감사 기록하기', moveToAnsweredLabel:'응답함으로 이동', add:'등록',
     untitled:'제목 없음', prayerTitleRequired:'기도제목을 입력해주세요.', prayerTitleTooLong:'기도제목은 80자 이내로 입력해주세요.', meaningfulPrayerTitle:'의미 있는 기도제목을 입력해주세요.',
     categoryTooLong:'카테고리 이름은 20자 이내로 입력해주세요.', meaningfulCategoryName:'의미 있는 카테고리 이름을 입력해주세요.',
     backLabel:'뒤로가기', newPrayerSubmitLabel:'새 기도제목 등록', addCategoryLabel:'카테고리 추가', editPrayerLabel:'기도 수정', savePrayerLabel:'기도 저장', deletePrayerLabel:'기도 삭제', editMemoLabel:'메모 수정', deleteMemoLabel:'메모 삭제', cancelMemoEditLabel:'메모 수정 취소', saveMemoEditLabel:'메모 저장', editCategoryLabel:'카테고리 수정', deleteCategoryLabel:'카테고리 삭제',
@@ -52,7 +52,7 @@ const UI_LANG={
     pinBackLabel:'Return to settings', pinDeleteLabel:'Delete last digit', pinKeypadLabel:'PIN keypad',
     backupSettings:'Backup',
     all:'All', uncategorized:'Uncategorized', answered:'Answered', restoreBtn:'Move to Praying', restoreConfirm:'will be moved back to praying.',
-    memo:'Memo', mark:'Mark Answered', answerComplete:'Mark Answered', processRecord:'Record Journey', gratitudeRecord:'Record Gratitude', add:'Add',
+    memo:'Memo', mark:'Mark Answered', processRecord:'Record Journey', gratitudeRecord:'Record Gratitude', moveToAnsweredLabel:'Move to Answered', add:'Add',
     untitled:'Untitled', prayerTitleRequired:'Please enter a prayer title.', prayerTitleTooLong:'Prayer titles must be 80 characters or fewer.', meaningfulPrayerTitle:'Please enter a meaningful prayer title.',
     categoryTooLong:'Category names must be 20 characters or fewer.', meaningfulCategoryName:'Please enter a meaningful category name.',
     backLabel:'Back', newPrayerSubmitLabel:'Add new prayer', addCategoryLabel:'Add category', editPrayerLabel:'Edit prayer', savePrayerLabel:'Save prayer', deletePrayerLabel:'Delete prayer', editMemoLabel:'Edit memo', deleteMemoLabel:'Delete memo', cancelMemoEditLabel:'Cancel memo edit', saveMemoEditLabel:'Save memo', editCategoryLabel:'Edit category', deleteCategoryLabel:'Delete category',
@@ -87,6 +87,7 @@ const POPUP_LANG={
   ko:{
     uncategorized:'카테고리가 미분류 상태입니다.\n카테고리를 설정해주세요.',
     restoreConfirm:title=>`"${title}"${josaEulReul(title)} 기도중으로 변경할까요?`,
+    answerMoveConfirm:title=>`"${title}"${josaEulReul(title)} 응답함으로 이동할까요?`,
     deletePrayer:title=>{ const target=title||'이 기도제목'; return `"${target}"${josaEulReul(target)} 삭제할까요?`; },
     deleteMemo:'이 메모를 삭제할까요?',
     deleteCategory:(name,cnt)=>`"${name}" 카테고리를 삭제할까요?
@@ -127,6 +128,7 @@ const POPUP_LANG={
   en:{
     uncategorized:'This prayer is still uncategorized.\nPlease choose a category.',
     restoreConfirm:title=>`Move "${title}" back to Prayers?`,
+    answerMoveConfirm:title=>`Move "${title}" to Answered?`,
     deletePrayer:title=>`Delete "${title||'this prayer'}"?`,
     deleteMemo:'Delete this memo?',
     deleteCategory:(name,cnt)=>`Delete the "${name}" category?

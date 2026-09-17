@@ -1,17 +1,11 @@
-Praysion Note 1.0.91-process-note-nav
+Praysion Note 1.0.92 — Answer heart toolbar
 
 Changed files only.
 
-- prayer.js
-  - Active/praying detail now shows a process-note composer.
-  - The same composer switches to gratitude mode after the prayer is marked answered.
-  - Process notes are saved as normal record memos.
-- assets/app.css
-  - Process-note button uses the same pale-green/bordered palette as category chips.
-  - Active detail reserves space for both the process composer and Answer Complete button.
-- settings.js
-  - Added process-note translations and changed bottom nav label from 기도목록 to 기도함.
-- index.html
-  - Changed answered-tab icon to a heart icon and fallback label to 기도함.
-- service-worker.js
-  - Cache version: 1.0.91-process-note-nav.
+- Removed the bottom [응답완료] button and all of its dedicated DOM/event/CSS wiring.
+- Added a heart action to praying-detail TopBar, in the same slot as the answered-detail restore action.
+- Heart tap opens the common Confirm modal with Cancel / Confirm.
+- Confirm moves the prayer to Answered and then loads the Answered page.
+- Kept uncategorized-prayer category selection safety before the move is committed.
+- Moved the praying-detail [과정 기록하기] composer to the same bottom position as the answered-detail gratitude composer.
+- Service worker cache version: 1.0.92-answer-heart-toolbar.

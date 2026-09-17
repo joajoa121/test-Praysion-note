@@ -73,10 +73,10 @@ function setTopbarConfig(v){
     setFlexShown(backBtn, true);
     const p=AppState.prayers.find(x=>x.id===curPrayerId);
     if(p){
-      const restoreButton=p.archived
+      const stateButton=p.archived
         ? `<button class="hdr-btn" id="restore-praying-btn" type="button" data-detail-toolbar-action="restore" aria-label="${uiT('restoreBtn')}"><i class="ti ti-arrow-back-up" aria-hidden="true"></i></button>`
-        : '';
-      actions.innerHTML=`${restoreButton}<button class="hdr-btn" id="edit-detail-btn" type="button" data-detail-toolbar-action="edit" aria-label="${uiT('editPrayerLabel')}"><i class="ti ti-pencil" aria-hidden="true"></i></button><button type="button" class="hdr-btn danger" data-detail-toolbar-action="delete" aria-label="${uiT('deletePrayerLabel')}"><i class="ti ti-trash" aria-hidden="true"></i></button>`;
+        : `<button class="hdr-btn" id="move-answered-btn" type="button" data-detail-toolbar-action="answer" aria-label="${uiT('moveToAnsweredLabel')}"><i class="ti ti-heart" aria-hidden="true"></i></button>`;
+      actions.innerHTML=`${stateButton}<button class="hdr-btn" id="edit-detail-btn" type="button" data-detail-toolbar-action="edit" aria-label="${uiT('editPrayerLabel')}"><i class="ti ti-pencil" aria-hidden="true"></i></button><button type="button" class="hdr-btn danger" data-detail-toolbar-action="delete" aria-label="${uiT('deletePrayerLabel')}"><i class="ti ti-trash" aria-hidden="true"></i></button>`;
     }
   }
 }
@@ -90,6 +90,7 @@ function bindDetailToolbarActions(){
     if(!button || !actions.contains(button)) return;
     const action=button.dataset.detailToolbarAction;
     if(action==='restore') restoreToPraying();
+    if(action==='answer') movePrayerToAnswered();
     if(action==='edit') toggleDetailEdit(event);
     if(action==='delete') deleteCurPrayer();
   });

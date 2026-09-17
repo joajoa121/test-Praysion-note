@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.91-process-note-nav";
+const APP_VERSION = "1.0.92-answer-heart-toolbar";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

@@ -15,7 +15,6 @@ function getDetailUI(){
     category:document.getElementById('detail-cat-wrap'),
     createdAt:document.getElementById('detail-created-at'),
     memoAdd:document.getElementById('memo-add-area'),
-    answerAction:document.getElementById('answer-complete-wrap'),
     memoList:document.getElementById('memo-list')
   };
   if(Object.values(ui).some(el=>!el)) return ui;
@@ -30,7 +29,6 @@ function getEditPrayerUI(){
     body:detailUI.body,
     category:detailUI.category,
     memoAdd:detailUI.memoAdd,
-    answerAction:detailUI.answerAction,
     saveButton:document.getElementById('edit-detail-btn')
   };
 }
@@ -769,9 +767,11 @@ function setEditPrayerSaveState(isSaving){
   button.disabled=_isSavingEditPrayer;
   button.setAttribute('aria-busy',String(_isSavingEditPrayer));
 }
-function setRestorePrayingButtonVisible(visible){
-  const button=document.getElementById('restore-praying-btn');
-  if(button) setHidden(button,!visible);
+function setPrayerStateButtonVisible(visible){
+  ['restore-praying-btn','move-answered-btn'].forEach(id=>{
+    const button=document.getElementById(id);
+    if(button) setHidden(button,!visible);
+  });
 }
 function scrollDetailToTop(){
   const scroller=document.getElementById('detail-scroll');
@@ -788,7 +788,6 @@ function ensureDetailActionDelegation(detailView){
     if(!actionEl || !detailView.contains(actionEl)) return;
     const action=actionEl.dataset.detailAction;
     if(action==='restore') restoreToPraying();
-    if(action==='mark-answered') markPrayerAnswered();
     if(action==='add-record') addMemo('record');
     if(action==='add-thanks') addThanksRecord();
   });
@@ -851,12 +850,10 @@ function renderDetailFrame(p){
     setHidden(editBtn,false);
     setDetailEditButtonMode(editBtn,'edit');
   }
-  setRestorePrayingButtonVisible(!!p.archived);
+  setPrayerStateButtonVisible(true);
   const detailUI=getDetailUI();
   const memoAddEl=detailUI.memoAdd;
-  const answerActionEl=detailUI.answerAction;
   if(memoAddEl) setHidden(memoAddEl,false);
-  if(answerActionEl) setHidden(answerActionEl,!!p.archived);
   configureDetailMemoComposer(p);
   return detailView;
 }
@@ -1011,7 +1008,6 @@ async function toggleDetailEdit(event){
     body:bodyEl,
     saveButton:btn,
     memoAdd:memoAddEl,
-    answerAction:answerActionEl,
     view:viewDetailEl,
     category:catWrap
   }=getEditPrayerUI();
@@ -1050,10 +1046,9 @@ async function toggleDetailEdit(event){
       setEditableField(titleEl,false);
       if(bodyEl){ setEditableField(bodyEl,false); }
       if(memoAddEl) setHidden(memoAddEl, false);
-      if(answerActionEl) setHidden(answerActionEl, !!p.archived);
       configureDetailMemoComposer(p);
       if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
-      setRestorePrayingButtonVisible(!!p.archived);
+      setPrayerStateButtonVisible(true);
       setDetailEditButtonMode(btn,'edit');
       const p3=getCurrentDetailPrayer();
       if(catWrap&&p3) renderDetailCatRead(catWrap,p3);
@@ -1089,8 +1084,7 @@ async function toggleDetailEdit(event){
     // 수정 중에는 하단 액션을 모두 숨긴다.
     // 저장이 완료되어 보기 모드로 돌아온 뒤에만 상태에 맞는 하단 액션을 다시 표시한다.
     if(memoAddEl) setHidden(memoAddEl, true);
-    if(answerActionEl) setHidden(answerActionEl, true);
-    setRestorePrayingButtonVisible(false);
+    setPrayerStateButtonVisible(false);
     if(viewDetailEl) viewDetailEl.classList.add('detail-editing');
     renderMemos(source);
     setDetailEditButtonMode(btn,'save');
@@ -1107,7 +1101,6 @@ function resetDetailEditState(options={}){
     body:bodyEl,
     saveButton:btn,
     memoAdd:memoAddEl,
-    answerAction:answerActionEl,
     view:viewDetailEl,
     category:catWrap
   }=getEditPrayerUI();
@@ -1127,9 +1120,8 @@ function resetDetailEditState(options={}){
   if(titleEl){ setEditableField(titleEl,false); }
   if(bodyEl){ setEditableField(bodyEl,false); }
   if(viewDetailEl) viewDetailEl.classList.remove('detail-editing');
-  setRestorePrayingButtonVisible(!!p?.archived);
+  setPrayerStateButtonVisible(!!p);
   if(memoAddEl) setHidden(memoAddEl, !p);
-  if(answerActionEl) setHidden(answerActionEl, !!p?.archived);
   if(p) configureDetailMemoComposer(p);
 
   if(catWrap && p) renderDetailCatRead(catWrap,p);
@@ -1243,33 +1235,15 @@ function showCategorySelectModal(){
   });
 }
 
-async function markPrayerAnswered(){
+async function movePrayerToAnswered(){
   try{
     const p=getCurrentDetailPrayer();
-    if(!p || p.archived) return;
+    if(!p || p.archived || isDetailEditMode()) return;
 
-    const wasEditing=isDetailEditMode();
-    const prevSnapshot=createEditPrayerSnapshot(p);
-    let validatedDraft=null;
+    if(!(await showConfirm(popupT('answerMoveConfirm',p.title)))) return;
 
-    // 수정 중 [응답완료]를 눌러도 현재 작성 중인 제목/본문/카테고리를 잃지 않는다.
-    if(wasEditing){
-      const draft=getEditPrayerDraft();
-
-      if(CategoryService.isUncategorized(draft.category)){
-        const selectedCat=await showCategorySelectModal();
-        if(!selectedCat) return;
-        draft.category=CategoryService.normalize(selectedCat);
-      }
-
-      validatedDraft=await validateEditPrayerDraft(draft,{
-        prayerId:p.id,
-        titleEl:getDetailUI().title
-      });
-      if(!validatedDraft) return;
-
-      applyEditPrayerDraft(p,validatedDraft);
-    }else if(isUncategorizedPrayer(p)){
+    const previousCategory=p.cat;
+    if(isUncategorizedPrayer(p)){
       const selectedCat=await showCategorySelectModal();
       if(!selectedCat) return;
       p.cat=CategoryService.normalize(selectedCat);
@@ -1280,21 +1254,18 @@ async function markPrayerAnswered(){
 
     if(!saveData()){
       p.archived=false;
-      if(wasEditing) restoreEditPrayerSnapshot(p,prevSnapshot);
+      p.cat=previousCategory;
       await refreshSlides();
       return;
     }
 
-    // 응답함으로 상태를 옮기되, 사용자는 같은 상세 페이지에 머문다.
     clearEditPrayerState();
     setEditPrayerSaveState(false);
-    setDetailReturnView('archive');
     await refreshSlides();
     renderArchive({preserveState:false});
-    renderDetail();
-    refreshLocalizedUI();
+    showView('archive', false);
   }catch(error){
-    console.error('응답 처리 중 오류 발생:', error);
+    console.error('응답함 이동 중 오류 발생:', error);
     await showAlert(popupT('answerProcessFailed'));
   }
 }

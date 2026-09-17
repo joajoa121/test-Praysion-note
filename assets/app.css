@@ -1545,3 +1545,72 @@ body,
   box-sizing:border-box !important;
   justify-self:stretch !important;
 }
+
+
+/* =========================================================
+   RC14: Praying detail process-note composer + nav refinements
+   ========================================================= */
+
+/* 기도중 상세에서도 메모 입력 카드를 노출하되 응답완료 버튼 위에 둔다. */
+#view-detail:not(.archived-detail):not(.detail-editing) #memo-add-area{
+  display:flex !important;
+  bottom:calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+#view-detail:not(.archived-detail):not(.detail-editing) #memo-add-area > div{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+}
+
+#view-detail:not(.archived-detail):not(.detail-editing) #memo-add-ta{
+  min-height:80px !important;
+  max-height:160px !important;
+  padding:12px 14px 6px !important;
+  line-height:1.6 !important;
+}
+
+#view-detail:not(.archived-detail):not(.detail-editing) .memo-add-actions{
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:8px 10px 10px !important;
+  box-sizing:border-box !important;
+}
+
+/* 분류칩과 같은 옅은 녹색 계열의 [과정 기록하기] 버튼 */
+#view-detail .memo-add-btn.process{
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  display:flex !important;
+  width:100% !important;
+  height:44px !important;
+  min-height:44px !important;
+  max-width:none !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:0 14px !important;
+  box-sizing:border-box !important;
+  border:0.5px solid #c5dfc9 !important;
+  border-radius:12px !important;
+  background:#edf5ef !important;
+  color:#4a7c59 !important;
+  font-size:15px !important;
+  font-weight:600 !important;
+  box-shadow:none !important;
+}
+#view-detail .memo-add-btn.process:active{
+  background:#e2efe5 !important;
+  border-color:#4a7c59 !important;
+}
+
+/* 과정 입력 카드 + 응답완료 버튼 두 영역만큼 스크롤 여백 확보 */
+#view-detail:not(.archived-detail) #detail-scroll{
+  padding-bottom:calc(255px + env(safe-area-inset-bottom, 0px)) !important;
+  scroll-padding-bottom:calc(255px + env(safe-area-inset-bottom, 0px)) !important;
+}

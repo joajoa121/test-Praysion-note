@@ -1555,16 +1555,16 @@ body,
   margin:0 !important;
   padding:0 14px !important;
   box-sizing:border-box !important;
-  border:0.5px solid #c5dfc9 !important;
+  border:2px solid #4a7c59 !important;
   border-radius:12px !important;
-  background:#edf5ef !important;
+  background:#fff !important;
   color:#4a7c59 !important;
   font-size:15px !important;
   font-weight:600 !important;
   box-shadow:none !important;
 }
 #view-detail .memo-add-btn.process:active{
-  background:#e2efe5 !important;
+  background:#f7fbf8 !important;
   border-color:#4a7c59 !important;
 }
 

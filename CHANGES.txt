@@ -1,11 +1,9 @@
-Praysion Note 1.0.92 — Answer heart toolbar
+Praysion Note 1.0.93-process-button-outline
 
-Changed files only.
-
-- Removed the bottom [응답완료] button and all of its dedicated DOM/event/CSS wiring.
-- Added a heart action to praying-detail TopBar, in the same slot as the answered-detail restore action.
-- Heart tap opens the common Confirm modal with Cancel / Confirm.
-- Confirm moves the prayer to Answered and then loads the Answered page.
-- Kept uncategorized-prayer category selection safety before the move is committed.
-- Moved the praying-detail [과정 기록하기] composer to the same bottom position as the answered-detail gratitude composer.
-- Service worker cache version: 1.0.92-answer-heart-toolbar.
+Changed files only:
+- assets/app.css
+  - Changed the praying-detail [과정 기록하기] button to a white background.
+  - Uses the same green (#4a7c59) as the answered-detail gratitude action for text and border.
+  - Increased the border to 2px for a clearer outline matching the visual weight of the button label.
+- service-worker.js
+  - Bumped app/cache version to 1.0.93-process-button-outline.

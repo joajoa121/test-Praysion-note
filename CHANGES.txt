@@ -1,6 +1,9 @@
-Praysion Note 1.0.96-createdat-sort
+Praysion Note safe cleanup - 1.0.97-safe-cleanup
 
-- 기도함과 응답함 카드 정렬 기준을 기도 작성시간(createdAt) 최신순으로 통일했습니다.
-- createdAt의 초(HH:mm:ss)까지 비교합니다.
-- 메모/과정기록/감사기록의 작성시간은 카드 정렬에 더 이상 영향을 주지 않습니다.
-- 응답함도 화면 렌더링 시 동일한 최신순 정렬 함수를 적용합니다.
+- Protected all topbar/VisualViewport/keyboard stabilization code.
+- Removed obsolete detail restore action delegation left from the old bottom restore button.
+- Removed duplicate archive rendering before navigation to the Answered view.
+- Removed unused .memo-add-btn.record style.
+- Removed obsolete #restore-btn-wrap detail CSS from the former bottom restore UI.
+- Consolidated duplicated answered-detail memo composer CSS while preserving the same final dimensions and behavior.
+- No intended UI or functional behavior changes.

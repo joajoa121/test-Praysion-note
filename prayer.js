@@ -782,7 +782,6 @@ function ensureDetailActionDelegation(detailView){
     const actionEl=event.target.closest('[data-detail-action]');
     if(!actionEl || !detailView.contains(actionEl)) return;
     const action=actionEl.dataset.detailAction;
-    if(action==='restore') restoreToPraying();
     if(action==='add-record') addMemo('record');
     if(action==='add-thanks') addThanksRecord();
   });
@@ -1257,7 +1256,6 @@ async function movePrayerToAnswered(){
     clearEditPrayerState();
     setEditPrayerSaveState(false);
     await refreshSlides();
-    renderArchive({preserveState:false});
     showView('archive', false);
   }catch(error){
     console.error('응답함 이동 중 오류 발생:', error);

@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.95-seconds-display";
+const APP_VERSION = "1.0.96-createdat-sort";
 const CACHE_NAME = `irum-prayer-v${APP_VERSION}`;
 
 const CORE_FILES = [

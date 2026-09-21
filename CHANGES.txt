@@ -1,8 +1,6 @@
-Praysion Note 1.0.95 - seconds display
+Praysion Note 1.0.96-createdat-sort
 
-- Excel template download filename is `praysion-note-import-template.xlsx` (no `-2sheet` suffix).
-- App date/time display now shows seconds for prayer creation times and memo times: YYYY-MM-DD HH:mm:ss.
-- Excel CreatedDate/MemoDate continue to accept seconds.
-- If Excel contains a date without a time, it is normalized to 00:00:00.
-- Guide sheet wording now explicitly explains the MemoDate date-only => 00:00:00 rule in Korean and English.
-- Existing 2-sheet Excel import structure and 진행/완료 mapping are unchanged.
+- 기도함과 응답함 카드 정렬 기준을 기도 작성시간(createdAt) 최신순으로 통일했습니다.
+- createdAt의 초(HH:mm:ss)까지 비교합니다.
+- 메모/과정기록/감사기록의 작성시간은 카드 정렬에 더 이상 영향을 주지 않습니다.
+- 응답함도 화면 렌더링 시 동일한 최신순 정렬 함수를 적용합니다.

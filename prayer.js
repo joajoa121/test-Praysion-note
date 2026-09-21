@@ -171,14 +171,9 @@ function buildSlides(){
 }
 
 function prayerDateValue(p){
-  let newest=appDateValue(p&&p.createdAt);
-  if(Array.isArray(p&&p.memos)){
-    p.memos.forEach(m=>{
-      const value=appDateValue(m&&m.date);
-      if(value>newest) newest=value;
-    });
-  }
-  return newest;
+  // Prayer cards are ordered only by the prayer creation time.
+  // Memo/process/gratitude timestamps must not change card order.
+  return appDateValue(p&&p.createdAt);
 }
 function sortPrayersNewestFirst(list){
   return list
@@ -480,13 +475,13 @@ function renderArchiveSlide(i){
   const t=archiveTabs()[i];
   const el=document.getElementById('archive-slide-'+i); if(!el) return;
   const q=archiveSearchQuery.trim().toLowerCase();
-  const list=AppState.prayers.filter(p=>{
+  const list=sortPrayersNewestFirst(AppState.prayers.filter(p=>{
     if(!p.archived) return false;
     const catMatch=CategoryService.isAll(t)||CategoryService.normalize(p.cat)===t;
     if(!catMatch) return false;
     if(!q) return true;
     return (p.title||'').toLowerCase().includes(q)||(p.body||'').toLowerCase().includes(q)||(Array.isArray(p.memos)&&p.memos.some(m=>(m.text||'').toLowerCase().includes(q)));
-  });
+  }));
   renderPrayerListInto(el, list, {
     archived:true,
     emptyIcon:'ti ti-archive',

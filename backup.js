@@ -86,11 +86,20 @@ function excelCategoryToInternal(raw){
   return CategoryService.normalize(s);
 }
 
-function isAnsweredStatus(status){
-  return excelKeywordPattern(EXCEL_IMPORT_KEYWORDS.answeredStatus).test(safeTrim(status));
+function excelProgressCode(raw,{allowBlank=true}={}){
+  const value=safeTrim(raw);
+  if(!value) return allowBlank ? '진행' : '';
+  if(value==='진행' || value==='완료') return value;
+  return '';
 }
-function memoTypeFromExcel(typeRaw){
-  return excelKeywordPattern(EXCEL_IMPORT_KEYWORDS.thanksMemo).test(safeTrim(typeRaw))?'thanks':'record';
+function excelPrayerArchived(raw){
+  return excelProgressCode(raw)==='완료';
+}
+function excelMemoType(raw){
+  return excelProgressCode(raw)==='완료' ? 'thanks' : 'record';
+}
+function normalizeInternalMemoType(raw){
+  return safeTrim(raw)==='thanks' ? 'thanks' : 'record';
 }
 
 function isBlankImportValue(value){
@@ -115,25 +124,19 @@ function excelDateToISO(v, importStats=null){
   return parseAppDateTime(v,{fallbackNow:true,clampFuture:true});
 }
 
-function excelStatusToArchived(status){
-  return isAnsweredStatus(status);
-}
-function excelStatusToState(status){
-  return excelStatusToArchived(status) ? 'answered' : 'praying';
-}
 function normalizePrayerRecord(raw, importStats=null){
   const p=raw || {};
   const idNumber=Number(p.id);
   const archived=typeof p.archived==='boolean'
     ? p.archived
-    : (p.isAnswered===true || p.status==='answered' || isAnsweredStatus(p.status));
+    : (p.isAnswered===true || p.status==='answered');
   const memos=Array.isArray(p.memos) ? p.memos.map(m=>{
     const memoIdNumber=Number(m&&m.id);
     return {
       ...(Number.isFinite(memoIdNumber) ? {id:memoIdNumber} : {}),
       date:excelDateToISO(m&&m.date,importStats),
       text:String((m&&m.text) ?? ''),
-      type:memoTypeFromExcel((m&&m.type) || '')
+      type:normalizeInternalMemoType((m&&m.type) || '')
     };
   }) : [];
   return {
@@ -186,14 +189,6 @@ function normHeader(s){ return String(s||'').replace(/\s/g,'').trim(); }
 function safeTrim(value){
   if(value===null || value===undefined) return '';
   return String(value).replace(/^[\s\u00A0]+|[\s\u00A0]+$/g,'');
-}
-
-const EXCEL_IMPORT_KEYWORDS = {
-  answeredStatus: ['응답','완료','answered','answer','archived','archive','done','thanks'],
-  thanksMemo: ['응답 및 감사','응답','감사','thanks','thank','answer','answered']
-};
-function excelKeywordPattern(list){
-  return new RegExp(list.map(v=>String(v).replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s*')).join('|'),'i');
 }
 
 function cleanStringForSignature(value){
@@ -279,7 +274,7 @@ function addMemoToPrayer(prayer, rawMemo, allocator=null, importStats=null){
   if(!prayer) return false;
   const text=safeTrim(rawMemo&&rawMemo.text);
   if(!text) return false;
-  const type=memoTypeFromExcel((rawMemo&&rawMemo.type) || '');
+  const type=normalizeInternalMemoType((rawMemo&&rawMemo.type) || '');
   const date=excelDateToISO((rawMemo&&rawMemo.date) || '',importStats);
   const memo={...(allocator ? {id:Number(allocator.nextMemoId())} : {}),text,date,type};
   if(!Array.isArray(prayer.memos)) prayer.memos=[];
@@ -300,7 +295,7 @@ function mergePrayerMemos(target, incoming, allocator=null){
       id:allocator ? Number(allocator.nextMemoId()) : Number(nextMemoId++),
       text,
       date:excelDateToISO(m&&m.date),
-      type:memoTypeFromExcel((m&&m.type) || '')
+      type:normalizeInternalMemoType((m&&m.type) || '')
     };
     if(seen.has(memoSignature(memo))) return;
     target.memos.push(memo);
@@ -410,31 +405,29 @@ async function downloadExcelTemplate(){
   }
 
   const prayerSheet=XLSX.utils.aoa_to_sheet([
-    ['PrayerID','Title','Content','Category','Status','CreatedDate'],
-    ['P001','','','','','2026-07-14 18:00'],
-    ['P002','','','','','2026-07-15']
-  ]);
-
-  const memoSheet=XLSX.utils.aoa_to_sheet([
-    ['PrayerID','MemoDate','MemoType','MemoContent'],
-    ['P001','2026-07-14 18:30','','']
+    ['PrayerID','Title','Content','Category','Status','CreatedDate','MemoDate','MemoType','MemoContent'],
+    ['P001','','','','진행','2026-09-21 09:15:30','2026-09-21 10:05:12','진행',''],
+    ['P001','','','','진행','2026-09-21 09:15:30','2026-09-22 08:30:45','완료',''],
+    ['P002','','','','완료','2026-09-20 18:00:05','','진행','']
   ]);
 
   const guideSheet=XLSX.utils.aoa_to_sheet([
     ['Korean','English'],
-    ['이 파일은 이룸기도 백업/가져오기용 Excel 양식입니다.','This Excel template is used for Praysion Note import.'],
-    ['PrayerID는 기도제목과 메모를 연결하는 고유값입니다.','PrayerID is the unique value that links a prayer with its memos.'],
-    ['Title은 기도제목입니다. 비워두면 가져오지 않습니다.','Title is the prayer title. Rows without a Title will not be imported.'],
+    ['이 파일은 이룸기도 Excel 가져오기용 양식입니다. 첫 번째 Prayers 시트에 기도제목과 메모를 함께 입력합니다.','This file is the Excel import template for Praysion Note. Enter prayers and memos together on the first Prayers sheet.'],
+    ['PrayerID는 하나의 기도제목을 식별하는 고유값입니다. 같은 기도에 메모가 여러 개면 같은 PrayerID를 여러 행에 반복하세요.','PrayerID uniquely identifies a prayer. If a prayer has multiple memos, repeat the same PrayerID across multiple rows.'],
+    ['같은 PrayerID의 두 번째 행부터는 Title, Content, Category, Status, CreatedDate를 반복 입력해도 되고 비워도 됩니다. MemoDate, MemoType, MemoContent만 입력해도 같은 기도에 추가됩니다.','From the second row with the same PrayerID, you may repeat or leave Title, Content, Category, Status, and CreatedDate blank. Entering only MemoDate, MemoType, and MemoContent will add the memo to the same prayer.'],
+    ['Title은 기도제목입니다. 새로운 PrayerID의 첫 행에서는 필수입니다.','Title is the prayer title and is required on the first row of a new PrayerID.'],
     ['Content는 기도내용입니다.','Content is the prayer content.'],
-    ['Category는 카테고리 이름입니다. 비워두면 미분류로 저장됩니다. 기본 카테고리는 분류 1, 분류 2, 분류 3, 분류 4를 권장합니다.','Category is the category name. If blank, it will be saved as Uncategorized. Recommended default categories are Category 1, Category 2, Category 3, and Category 4.'],
-    ['Status는 기도중 또는 응답을 입력하세요. 응답은 완료도 호환됩니다.','Status should be praying or answered. Done is also supported as answered.'],
-    ['CreatedDate는 필수입니다. 날짜가 없거나 형식이 잘못된 기도 행은 가져오지 않습니다. MemoDate는 비워둘 수 있지만, 입력한 날짜 형식이 잘못되면 해당 메모를 가져오지 않습니다. 날짜는 YYYY-MM-DD HH:mm 형식으로 입력하세요. 시간을 생략하면 00:00으로 저장되며, 미래 날짜와 시간은 현재 날짜와 시간으로 저장됩니다.','CreatedDate is required. Prayer rows with a missing or invalid date are not imported. MemoDate may be blank, but a memo with an invalid entered date is not imported. Use YYYY-MM-DD HH:mm. If the time is omitted, 00:00 is used, and future date-times are saved as the current local date and time.'],
-    ['MemoType은 메모 또는 응답을 입력하세요. 응답은 감사도 호환됩니다. 비워두면 메모로 저장됩니다.','MemoType should be memo or answer. Thanks is also supported as answer. If blank, it will be saved as memo.']
+    ['Category는 카테고리 이름입니다. 비워두면 미분류로 저장됩니다.','Category is the category name. If blank, it is saved as Uncategorized.'],
+    ['Status는 진행 또는 완료만 입력하세요. 진행은 기도함, 완료는 응답함으로 배부됩니다. 비워두면 진행으로 처리됩니다.','Status accepts only In Progress (진행) or Complete (완료). In Progress goes to Prayers, and Complete goes to Answered. Blank values are treated as In Progress.'],
+    ['CreatedDate는 새로운 PrayerID의 첫 행에서 필수입니다. YYYY-MM-DD HH:mm:ss 형식으로 초까지 입력할 수 있습니다. 시간을 생략하면 00:00:00으로 저장되며, 미래 날짜와 시간은 현재 날짜와 시간으로 저장됩니다.','CreatedDate is required on the first row of a new PrayerID. Use YYYY-MM-DD HH:mm:ss; seconds are supported. If time is omitted, 00:00:00 is used. Future date-times are saved as the current local date and time.'],
+    ['MemoDate는 메모가 있을 때 사용할 수 있습니다. YYYY-MM-DD HH:mm:ss 형식으로 초까지 입력할 수 있습니다. 날짜만 입력하고 시간을 생략하면 00:00:00으로 저장됩니다. 비워두면 가져오는 시점의 날짜와 시간으로 저장됩니다. 잘못된 날짜를 입력하면 해당 메모는 가져오지 않습니다.','MemoDate is optional when a memo exists. Use YYYY-MM-DD HH:mm:ss; seconds are supported. If a date is entered without a time, 00:00:00 is used. If blank, the import time is used. A memo with an invalid entered date is skipped.'],
+    ['MemoType은 진행 또는 완료만 입력하세요. 진행은 과정 기록, 완료는 감사 기록으로 저장됩니다. 비워두면 진행으로 처리됩니다.','MemoType accepts only In Progress (진행) or Complete (완료). In Progress is saved as a process note, and Complete as a gratitude note. Blank values are treated as In Progress.'],
+    ['MemoContent는 메모 내용입니다. 같은 PrayerID를 반복해 메모를 여러 개 입력할 수 있습니다.','MemoContent is the memo text. Repeat the same PrayerID to add multiple memos.']
   ]);
 
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,prayerSheet,'Prayers');
-  XLSX.utils.book_append_sheet(wb,memoSheet,'Memos');
   XLSX.utils.book_append_sheet(wb,guideSheet,'Guide');
   XLSX.writeFile(wb,'praysion-note-import-template.xlsx');
 }
@@ -486,7 +479,6 @@ async function parseExcelToAppState(arrayBuffer){
   await yieldToMainThread();
   const wb=XLSX.read(arrayBuffer,{type:'array',cellDates:true});
   const prayerRows=sheetRows(wb,['Prayers','기도제목']);
-  const memoRows=sheetRows(wb,['Memos','메모']);
   if(!prayerRows.length) throw new Error('no prayer sheet');
 
   const idMap=new Map();
@@ -494,93 +486,94 @@ async function parseExcelToAppState(arrayBuffer){
   const importedCategories=[];
   const importedPrayers=[];
   let memoAdded=0;
-  const importStats={futureDateAdjusted:0,skipped:0,missingTitleSkipped:0,missingDateSkipped:0,invalidDateSkipped:0,invalidMemoDateSkipped:0,orphanMemoSkipped:0};
+  const importStats={
+    futureDateAdjusted:0,
+    skipped:0,
+    missingTitleSkipped:0,
+    missingDateSkipped:0,
+    invalidDateSkipped:0,
+    invalidMemoDateSkipped:0,
+    invalidStatusSkipped:0,
+    invalidMemoTypeSkipped:0
+  };
 
   for(let rowIndex=0; rowIndex<prayerRows.length; rowIndex++){
     await yieldEvery(rowIndex,50);
     const row=prayerRows[rowIndex];
-    const oldId=safeTrim(rowVal(row,['PrayerID','기도ID','ID','id'])) || `ROW${rowIndex+1}`;
-    const title=safeTrim(rowVal(row,['Title','기도제목','제목','title']));
-    if(!title){
-      importStats.skipped++;
-      importStats.missingTitleSkipped++;
-      continue;
-    }
-    const body=safeTrim(rowVal(row,['Content','기도내용','내용','본문','body']));
-    const cat=safeTrim(rowVal(row,['Category','카테고리','분류','category']));
-    const normalizedCat=excelCategoryToInternal(cat);
-    const status=safeTrim(rowVal(row,['Status','상태','응답여부','status','isAnswered']));
-    const createdDateCheck=validateImportDate(rowVal(row,['CreatedDate','기도제목날짜','기도날짜','작성일','날짜','createdAt']),{required:true,importStats});
-    if(!createdDateCheck.ok){
-      importStats.skipped++;
-      if(createdDateCheck.reason==='missing') importStats.missingDateSkipped++;
-      else importStats.invalidDateSkipped++;
-      continue;
-    }
-    const createdAt=createdDateCheck.value;
+    const enteredId=safeTrim(rowVal(row,['PrayerID','기도ID','ID','id']));
+    const oldId=enteredId || `ROW${rowIndex+1}`;
+    let prayer=idMap.get(oldId) || null;
 
-    if(normalizedCat && !importedCategories.includes(normalizedCat)) importedCategories.push(normalizedCat);
-
-    const archived=excelStatusToArchived(status);
-    const candidate={
-      cat:String(normalizedCat),
-      title,
-      body,
-      archived,
-      status:excelStatusToState(status),
-      memos:[],
-      createdAt
-    };
-
-    const sig=prayerContentSignature(candidate);
-    const existing=signatureMap.get(sig);
-    const newPrayer=existing || candidate;
-    if(!existing){
-      importedPrayers.push(newPrayer);
-      signatureMap.set(sig,newPrayer);
-    }
-    idMap.set(oldId,newPrayer);
-
-    // 한 행에 기도와 메모가 함께 들어있는 양식도 안전하게 지원합니다.
-    const inlineMemoText=safeTrim(rowVal(row,['MemoContent','메모내용','메모','memo','text']));
-    if(inlineMemoText){
-      const inlineMemoDate=rowVal(row,['MemoDate','메모날짜','메모작성일','메모_생성일','date']);
-      const memoDateCheck=validateImportDate(inlineMemoDate,{required:false,importStats});
-      if(!memoDateCheck.ok){
+    if(!prayer){
+      const title=safeTrim(rowVal(row,['Title','기도제목','제목','title']));
+      if(!title){
         importStats.skipped++;
-        importStats.invalidMemoDateSkipped++;
-      }else{
-        const didAdd=addMemoToPrayer(newPrayer,{
-          text:inlineMemoText,
-          type:rowVal(row,['MemoType','메모종류','종류','type']),
-          date:memoDateCheck.value
-        });
-        if(didAdd) memoAdded++;
+        importStats.missingTitleSkipped++;
+        continue;
       }
-    }
-  }
 
-  for(let memoIndex=0; memoIndex<memoRows.length; memoIndex++){
-    await yieldEvery(memoIndex,50);
-    const row=memoRows[memoIndex];
-    const oldId=safeTrim(rowVal(row,['PrayerID','기도ID','ID','id']));
-    const p=idMap.get(oldId);
-    if(!p){
+      const statusRaw=rowVal(row,['Status','상태','status']);
+      const statusCode=excelProgressCode(statusRaw);
+      if(!statusCode){
+        importStats.skipped++;
+        importStats.invalidStatusSkipped++;
+        continue;
+      }
+
+      const createdDateCheck=validateImportDate(rowVal(row,['CreatedDate','기도제목날짜','기도날짜','작성일','날짜','createdAt']),{required:true,importStats});
+      if(!createdDateCheck.ok){
+        importStats.skipped++;
+        if(createdDateCheck.reason==='missing') importStats.missingDateSkipped++;
+        else importStats.invalidDateSkipped++;
+        continue;
+      }
+
+      const body=safeTrim(rowVal(row,['Content','기도내용','내용','본문','body']));
+      const cat=safeTrim(rowVal(row,['Category','카테고리','분류','category']));
+      const normalizedCat=excelCategoryToInternal(cat);
+      if(normalizedCat && !importedCategories.includes(normalizedCat)) importedCategories.push(normalizedCat);
+
+      const archived=excelPrayerArchived(statusCode);
+      const candidate={
+        cat:String(normalizedCat),
+        title,
+        body,
+        archived,
+        status:archived ? 'answered' : 'praying',
+        memos:[],
+        createdAt:createdDateCheck.value
+      };
+
+      const sig=prayerContentSignature(candidate);
+      prayer=signatureMap.get(sig) || candidate;
+      if(prayer===candidate){
+        importedPrayers.push(prayer);
+        signatureMap.set(sig,prayer);
+      }
+      idMap.set(oldId,prayer);
+    }
+
+    const memoText=safeTrim(rowVal(row,['MemoContent','메모내용','메모','memo','text']));
+    if(!memoText) continue;
+
+    const memoTypeRaw=rowVal(row,['MemoType','메모종류','종류','type']);
+    const memoCode=excelProgressCode(memoTypeRaw);
+    if(!memoCode){
       importStats.skipped++;
-      importStats.orphanMemoSkipped++;
+      importStats.invalidMemoTypeSkipped++;
       continue;
     }
-    const memoText=safeTrim(rowVal(row,['MemoContent','메모내용','메모','내용','memo','text']));
-    if(!memoText) continue;
-    const memoDateCheck=validateImportDate(rowVal(row,['MemoDate','메모날짜','메모작성일','메모_생성일','날짜','date']),{required:false,importStats});
+
+    const memoDateCheck=validateImportDate(rowVal(row,['MemoDate','메모날짜','메모작성일','메모_생성일','date']),{required:false,importStats});
     if(!memoDateCheck.ok){
       importStats.skipped++;
       importStats.invalidMemoDateSkipped++;
       continue;
     }
-    const didAdd=addMemoToPrayer(p,{
+
+    const didAdd=addMemoToPrayer(prayer,{
       text:memoText,
-      type:rowVal(row,['MemoType','메모종류','종류','type']),
+      type:excelMemoType(memoCode),
       date:memoDateCheck.value
     });
     if(didAdd) memoAdded++;
@@ -599,7 +592,8 @@ async function parseExcelToAppState(arrayBuffer){
     missingDateSkipped:importStats.missingDateSkipped,
     invalidDateSkipped:importStats.invalidDateSkipped,
     invalidMemoDateSkipped:importStats.invalidMemoDateSkipped,
-    orphanMemoSkipped:importStats.orphanMemoSkipped
+    invalidStatusSkipped:importStats.invalidStatusSkipped,
+    invalidMemoTypeSkipped:importStats.invalidMemoTypeSkipped
   };
 }
 
@@ -621,7 +615,8 @@ async function applyExcelImportToAppState(imported){
     missingDateSkipped:Number(imported.missingDateSkipped)||0,
     invalidDateSkipped:Number(imported.invalidDateSkipped)||0,
     invalidMemoDateSkipped:Number(imported.invalidMemoDateSkipped)||0,
-    orphanMemoSkipped:Number(imported.orphanMemoSkipped)||0
+    invalidStatusSkipped:Number(imported.invalidStatusSkipped)||0,
+    invalidMemoTypeSkipped:Number(imported.invalidMemoTypeSkipped)||0
   };
 
   for(let importIndex=0; importIndex<imported.prayers.length; importIndex++){
@@ -636,7 +631,7 @@ async function applyExcelImportToAppState(imported){
     }else{
       p.memos=(Array.isArray(p.memos)?p.memos:[]).map(m=>({
         text:safeTrim(m&&m.text),
-        date:excelDateToISO(m&&m.date), type:memoTypeFromExcel((m&&m.type)||'')
+        date:excelDateToISO(m&&m.date), type:normalizeInternalMemoType((m&&m.type)||'')
       })).filter(m=>m.text);
       assignFreshImportIds(p,allocator);
       result.memoAdded+=p.memos.length;
@@ -769,7 +764,7 @@ async function applyJsonBackupToAppState(data){
     }else{
       p.memos=(Array.isArray(p.memos)?p.memos:[]).map(m=>({
         text:safeTrim(m&&m.text),
-        date:excelDateToISO(m&&m.date), type:memoTypeFromExcel((m&&m.type)||'')
+        date:excelDateToISO(m&&m.date), type:normalizeInternalMemoType((m&&m.type)||'')
       })).filter(m=>m.text);
       assignFreshImportIds(p,allocator);
       workingPrayers.push(p);

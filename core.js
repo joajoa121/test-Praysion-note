@@ -591,7 +591,7 @@ function parseAppDateTime(v, options={}){
 
 function formatAppDateTime(v){
   const value=parseAppDateTime(v,{fallbackNow:false,clampFuture:false});
-  return value ? `${value.slice(0,10)} ${value.slice(11,16)}` : '';
+  return value ? `${value.slice(0,10)} ${value.slice(11,19)}` : '';
 }
 
 function appDateValue(v){

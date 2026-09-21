@@ -1,9 +1,8 @@
-Praysion Note 1.0.93-process-button-outline
+Praysion Note 1.0.95 - seconds display
 
-Changed files only:
-- assets/app.css
-  - Changed the praying-detail [과정 기록하기] button to a white background.
-  - Uses the same green (#4a7c59) as the answered-detail gratitude action for text and border.
-  - Increased the border to 2px for a clearer outline matching the visual weight of the button label.
-- service-worker.js
-  - Bumped app/cache version to 1.0.93-process-button-outline.
+- Excel template download filename is `praysion-note-import-template.xlsx` (no `-2sheet` suffix).
+- App date/time display now shows seconds for prayer creation times and memo times: YYYY-MM-DD HH:mm:ss.
+- Excel CreatedDate/MemoDate continue to accept seconds.
+- If Excel contains a date without a time, it is normalized to 00:00:00.
+- Guide sheet wording now explicitly explains the MemoDate date-only => 00:00:00 rule in Korean and English.
+- Existing 2-sheet Excel import structure and 진행/완료 mapping are unchanged.
